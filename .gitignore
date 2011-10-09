@@ -1,0 +1,12 @@
+.*
+\#*
+*~
+*-
+!.gitignore
+!.keep
+out
+work
+download
+tmp
+*.log
+*.prev
