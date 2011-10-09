@@ -25,6 +25,7 @@ TEMP_DIR="$workdir/../tmp"
 OUT_DIR="$workdir/../out/${PKGNAME}_$dt"
 EXTR_DIR="$workdir/../extra"
 TOOLS_DIR="$workdir/../tools"
+SDCARD_DIR="$workdir/../sdcard"
 GPS_DIR="$workdir/../sdcard/gpsconf"
 
 die () {
@@ -195,6 +196,9 @@ mix_extra () {
     done
     echo -ne "\n"
 
+	test -d $OUT_DIR/sdcard && rm -fr $OUT_DIR/sdcard
+	dexec cp -a $SDCARD_DIR $OUT_DIR
+
     ewarn_n "PRE: $(readlink -f $OUT_DIR)\n * "
     pretty_fix "prepend"
     ewarn_n "APPEND: $(readlink -f $OUT_DIR)\n * "
@@ -219,7 +223,7 @@ mkbootimg () {
 }
 
 zipped_sign () {
-    NAME=${PKGNAME}_${dt}
+    NAME=${PKGNAME}-${dt}
     ZIPF="$(readlink -f $OUT_DIR/../${NAME}.zip)"
     OUTF="$(readlink -f $OUT_DIR/../${NAME}.signed.zip)"
     ewarn_n "BUILD ROM: $(basename $OUTF)\n * "
@@ -232,6 +236,8 @@ zipped_sign () {
     sed -i '/mount("ext4", "EMMC", "\/dev\/block\/mmcblk0p25",/a mount("ext4", "EMMC", "/dev/block/mmcblk0p26", "/data");' \
         META-INF/com/google/android/updater-script
     sed -i '/package_extract_dir("system",/a package_extract_dir("data","/data");' \
+        META-INF/com/google/android/updater-script
+    sed -i '/package_extract_dir("data",/a package_extract_dir("sdcard","/sdcard");' \
         META-INF/com/google/android/updater-script
     sed -i '/umount("\/system",/i umount("/data");' \
         META-INF/com/google/android/updater-script
