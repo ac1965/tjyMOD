@@ -2,6 +2,7 @@
 
 PKGNAME=tjyMOD
 VERSION=0.1
+LOCALE=JAPAN # sdcard/gpsconf/..
 
 giturl="git://github.com/ac1965/DD.git"
 default_kernel="lordmodUEv7.2-CFS-b13.zip"
@@ -24,6 +25,7 @@ TEMP_DIR="$workdir/../tmp"
 OUT_DIR="$workdir/../out/${PKGNAME}_$dt"
 EXTR_DIR="$workdir/../extra"
 TOOLS_DIR="$workdir/../tools"
+GPS_DIR="$workdir/../sdcard/gpsconf"
 
 die () {
 	echo -e "\033[1;30m>\033[0;31m>\033[1;31m> ERROR:\033[0m ${@}" && exit 1
@@ -217,8 +219,9 @@ mkbootimg () {
 }
 
 zipped_sign () {
-    ZIPF="$(readlink -f $OUT_DIR/../${PKGNAME}_${dt}.zip)"
-    OUTF="$(readlink -f $OUT_DIR/../${PKGNAME}-${dt}.signed.zip)"
+    NAME=${PKGNAME}_${dt}
+    ZIPF="$(readlink -f $OUT_DIR/../${NAME}.zip)"
+    OUTF="$(readlink -f $OUT_DIR/../${NAME}.signed.zip)"
     ewarn_n "BUILD ROM: $(basename $OUTF)\n * "
     cd $OUT_DIR
     test -f $ZIPF && rm -f $ZIPF
@@ -228,8 +231,18 @@ zipped_sign () {
     mv _u META-INF/com/google/android/updater-script
     sed -i '/mount("ext4", "EMMC", "\/dev\/block\/mmcblk0p25",/a mount("ext4", "EMMC", "/dev/block/mmcblk0p26", "/data");' \
         META-INF/com/google/android/updater-script
-    sed -i '/package_extract_dir("system",/a package_extract_dir("data", "/data");' \
+    sed -i '/package_extract_dir("system",/a package_extract_dir("data","/data");' \
         META-INF/com/google/android/updater-script
+    sed -i '/umount("\/system",/i umount("/data");' \
+        META-INF/com/google/android/updater-script
+    test -f $GPS_DIR/${LOCALE}.zip && \
+        unzip $GPS_DIR/${LOCALE}.zip -d $TEMP_DIR/gps >> $LOG 2>&1
+    test -f $TEMP_DIR/gps/system/etc/gps.conf && \
+        cp $TEMP_DIR/gps/system/etc/gps.conf $OUT_DIR/system/etc
+    test -d $TEMP_DIR/gps && rm -fr $TEMP_DIR/gps
+    
+    echo "BASEROM : $(basename $baserom_file)" > $OUT_DIR/build_${NAME}.txt
+    echo "KERNEL  : $(basename $kernel_file)" >> $OUT_DIR/build_${NAME}.txt
     for f in $CLEAN_LIST
     do
         test -f $f && (rm -f $f; echo -ne "$f ")
