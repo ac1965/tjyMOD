@@ -124,7 +124,27 @@ build () {
     ewarn_n "Reconstrunction:"
     test -d $OUT_DIR && rm -fr $OUT_DIR
     mkdir -p $OUT_DIR
-    for t in $TEMP_DIR/$baserom $TEMP_DIR/$kernel
+    echo -ne "\033[1;31m$(basename $t)\033[0m "
+    for t in $TEMP_DIR/$baserom
+    do
+        (
+            cd $t
+            for d in $DIRS
+            do
+                if test -d $d; then
+                    tar cf - $d | (cd $OUT_DIR; tar xfv -) >> $LOG 2>&1
+                fi
+            done
+        )
+        rm -fr $t
+    done
+
+    (
+        cd $OUT_DIR
+        rm -fr system/lib/modules
+    )
+
+    for t in $TEMP_DIR/$kernel
     do
         echo -ne "\033[1;31m$(basename $t)\033[0m "
         (

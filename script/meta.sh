@@ -72,7 +72,7 @@ for option
 do
     case "$option" in
         all)
-            einfo "Automatic Build ROM"
+            einfo "Automatic Build ROM : CM7 nigthly and LorDmodUE kernel"
             cleanup && get_baserom $baserom_file && get_kernel $kernel_file && build $baserom_file $kernel_file
             ;;
         clean)
