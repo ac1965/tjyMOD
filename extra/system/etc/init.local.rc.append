@@ -1,0 +1,15 @@
+# begin tjyMOD
+###Bootsound - Safe to Delete: Start ###
+service bootsound /system/bin/bootsound
+        user media
+        group audio
+        disabled
+        oneshot
+
+on property:init.svc.bootanim=running   # to correct timin
+        start bootsound
+
+on property:dev.bootcomplete=1
+        stop bootsound
+### Bootsound - Safe to Delete: End ###
+# end tjyMOD

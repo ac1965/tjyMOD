@@ -1,0 +1,109 @@
+#!/system/bin/sh
+
+PATH=/system/xbin:/system/bin:/data/bin
+FLAG=/data/local/dosysoverlay
+SELF=`basename $0`
+DEBUG=1
+DEBUGF=/data/local/aufs.debug
+MMCBLK=/dev/block/mmcblk0
+OVERLAY_DIR=/data/aufs
+
+echod () {
+    [ "$DEBUG" -eq 1 ] && echo $1 | tee -a $DEBUGF || echo $1
+}
+
+abort () {
+    echod $1
+    exit 1
+}
+
+is_modules_fs () {
+    echod "Checking for kernel $1 support..."
+    if [ ! -d /sys/fs/${1} ]; then
+	echod "No aufs driver detected, trying to load $1 module..."
+	MODULE=`find /system/lib/modules -name ${1}.ko`
+	if [ -z "$MODULE" ]; then
+	    abort "No $1 module found, aborting..."
+	elif insmod $MODULE > /dev/null 2>&1; then
+	    echod "Module aufs loaded..."
+	else
+	    abort "Cannot load $1 module, aborting..."
+	fi
+    else
+	echod "Kernel has $1 support..."
+    fi
+}
+
+rootfs_overlay () {
+    echod "Setting read-write /system overlay..."
+    RWDIR=${1}/sysrw
+    RODIR=${1}/sysro
+    DEV=`fdisk -l $MMCBLK |grep Linux |head -n1 |awk '{print $1}'`
+    if [ -n "${DEV}" ]; then
+	ROOT=${1}/tmp
+	echod "Found partition on ${DEV}, will try to mount it to ${ROOT}..."
+	[ -d "${ROOT}" ] || install -d ${ROOT}
+	mount -t auto -o noatime,nodiratime $DEV $ROOT
+	chown 1000.1000 $ROOT
+	chmod 775 $ROOT
+    else
+	abort "Linux partition not found in ${MMCBLK}"
+    fi
+    [ -z "$MTOPTS" ] && MTOPTS="dirs=${RWDIR}:${RODIR}=ro"
+    [ -d "$RWDIR" ] || install -d $RWDIR
+    [ -d "$RODIR" ] || install -d $RODIR
+    echod "/system move $RODIR"
+    mount --move /system $RODIR
+    if $RODIR/xbin/mount.static -t aufs -o $MTOPTS overlay /system; then
+	echod "Overlay set..."
+    else
+	abort "Setting overlay failed..."
+    fi
+}
+
+umask 022
+
+case "$SELF" in
+    aufs)
+	if [ "$#" -eq 1 ]; then
+	    ENABLED=yes
+	    [ -f "$FLAG" ] || ENABLED=no
+	    case "$1" in
+		--enable)
+		    if [ "$ENABLED" = "yes" ]; then
+			echo "Read-write /system overlay is already enabled, doing nothing..."
+		    else
+			echo "Enabling read-write /system overlay..." && touch $FLAG
+			echo "Please reboot your phone for changes to take effect..."
+		    fi
+		    ;;
+		--disable)
+		    if [ $ENABLED == "no" ]; then
+			echo "Read-write /system overlay is already disabled, doing nothing..."
+		    else
+			echo "Disabling read-write /system overlay..." && rm $FLAG
+			echo "Please reboot your phone for changes to take effect..."
+		    fi
+		    ;;
+		--status)
+		    [ -f $FLAG ] && echo "Read-write /system overlay is set" || \
+			echo "Read-write /system overlay is not set"
+		    ;;
+		*)
+		    echo "$SELF [ --enable | --disable | --status ]"
+		    ;;
+	    esac
+	else
+	    echo "$SELF [ --enable | --disable | --status ]"
+	fi
+	exit 0
+	;;
+    *)
+	[ -f "$FLAG" ] || exit 0
+	[ -f "$DEBUGF" ] && rm $DEBUGF
+	is_modules_fs aufs
+	rootfs_overlay $OVERLAY_DIR
+	;;
+esac
+
+exit 0

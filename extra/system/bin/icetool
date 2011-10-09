@@ -1,0 +1,161 @@
+#!/system/xbin/bash
+WHO=`whoami`
+if [ "$WHO" != "root" ]; then
+  echo "Must be root"
+  exit 1
+fi
+
+if [ "$1" = "" ]; then
+  echo "Usage: $0 <cmd> ..."
+  exit 2
+fi
+
+CMD=$1
+
+Remount() {
+  local MODE=$1
+  mount -o remount,$MODE /system
+}
+
+Reboot() {
+  local PAUSE=$1
+  printf "Syncing...\n"
+  sync ; sync ; sync
+  printf "Rebooting in $PAUSE seconds...\n"
+  for i in `seq 1 $PAUSE`; do
+    printf "%d." $i
+    sleep 1
+  done
+  printf "\n"
+  reboot
+}
+
+InstallMarket() {
+  local APK=$1
+  Remount "rw"
+  pm uninstall com.android.vending
+  rm -f /data/app/com.android.vending*apk
+  cp $APK /system/app/Vending.apk
+  chmod 644 /system/app/Vending.apk
+  pm install $APK
+  Remount "ro"
+}
+
+LaunchMarket() {
+  am start -a android.intent.action.MAIN -n com.android.vending/com.android.vending.AssetBrowserActivity
+}
+
+###
+# Internal commands
+#
+# fastchargeon
+if [ "$CMD" = "fastchargeon" ]; then
+  echo "1" > /sys/class/power_supply/battery/force_high_power_charging
+  echo "High power charging enabled"
+  exit 0
+
+###
+# fastchargeoff
+elif [ "$CMD" = "fastchargeoff" ]; then
+  echo "0" > /sys/class/power_supply/battery/force_high_power_charging
+  echo "High power charging disabled"
+
+###
+# remountsysrw
+elif [ "$CMD" = "remountsysrw" ]; then
+  Remount "rw"
+  mount | grep system
+  echo "/system remounted read/write"
+
+###
+# remountsysro
+elif [ "$CMD" = "remountsysro" ]; then
+  Remount "ro"
+  mount | grep system
+  echo "/system remounted read-only"
+
+###
+# chargedisable
+elif [ "$CMD" = "chargedisable" ]; then
+  echo "0" > /sys/devices/platform/rs30100001:00000000/power_supply/battery/charge_on_plug_enabled
+  echo "Charge on plug disabled - unplug/plug to make it work"
+
+###
+# chargeenable
+elif [ "$CMD" = "chargeenable" ]; then
+  echo "1" > /sys/devices/platform/rs30100001:00000000/power_supply/battery/charge_on_plug_enabled
+  echo "Charge on plug enabled - unplug/plug to make it work"
+
+###
+# market
+elif [ "$CMD" = "market" ]; then
+set -x
+  VER=$2
+  APK=/sdcard/market/Vending-${VER}.apk
+  if [ -f $APK ]; then
+    InstallMarket $APK
+    LaunchMarket
+    echo "Market reverted to new version"
+  else
+    echo "Couldn't find Market version $VER" 
+    exit 1
+  fi
+set +x
+###
+# gpsconf
+elif [ "$CMD" = "gpsconf" ]; then
+  ZIP=/sdcard/gpsconf/$2
+  if [ ! -f "$ZIP" ]; then
+    echo "Nonexistent $ZIP!!!"
+  else
+    Remount "rw"
+    cd /
+    unzip -o $ZIP system/etc/gps.conf
+    RET=$?
+    if [ "$RET" != "0" ]; then
+      echo "Error extracting /system/etc/gps.conf from $ZIP"
+    else
+      echo "GPS configuration for $2 applied - open GPS Status and redownload AGPS data"
+    fi
+    Remount "ro"
+  fi
+
+###
+# dspchooser
+elif [ "$CMD" = "dspinit" ]; then
+    snd3254 -dspmode $2
+    echo "DSP profile for $2 applied"
+
+###
+# ril
+elif [ "$CMD" = "ril" ]; then
+  DIR=/sdcard/ril/$2
+  if [ -d "$DIR" ]; then
+    printf "RIL before patch: "
+    getprop | grep RIL
+    Remount "rw"
+    cp -r $DIR/* /
+    Remount "ro"
+    echo "RIL switched to $2. Rebooting is highly recommended!"
+  else 
+     echo "Error: $DIR does not exist"
+     exit 1
+  fi
+
+###
+# density
+elif [ "$CMD" = "density" ]; then
+  DENSITY=$2
+  Remount "rw"
+  cat /system/build.prop |  sed "s/ro.sf.lcd_density=.*/ro.sf.lcd_density=$DENSITY/g" > /system/build.prop.new
+  mv /system/build.prop.new /system/build.prop
+  chmod 644 /system/build.prop
+  Remount "ro"
+  Reboot 5
+       
+### Any other command - we are a wrapper
+else
+
+  exec $@
+
+fi
