@@ -10,6 +10,7 @@ DOWN_DIR="$workdir/../download"
 TEMP_DIR="$workdir/../tmp"
 OUT_DIR="$workdir/../out/${PKGNAME}_$(date +%Y%m%d)"
 EXTR_DIR="$workdir/../extra"
+TOOLS_DIR="$workdir/../tools"
 
 KERNELBASE=https://dl.dropbox.com/s/2lar8mywh2u9ctk  # lordmodUEv7.2-CFS-b13.zip?dl=1
 ROMBASE=http://download.cyanogenmod.com/get          # cm_ace_full-XXX.zip
@@ -173,6 +174,18 @@ mix_extra () {
     echo -ne "\n"
 }
 
+zipped_sign () {
+    ZIPF="$(readlink -f $OUT_DIR/../${PKGNAME}_$(date +%Y%m%d).zip)"
+    OUTF="$(readlink -f $OUT_DIR/../update-${PKGNAME}_$(date +%Y%m%d).zip)"
+    cd $OUT_DIR
+    test -f $ZIPF && rm -f $ZIPF
+    sed -i '/package_extract_dir("system",/a package_extract_dir("data", "/data");' \
+        META-INF/com/google/android/updater-script
+    zip -r $ZIPF .
+    java -jar $TOOLS_DIR/signapk.jar $TOOLS_DIR/certification.pem key.pk8 $ZIPF $OUTF && rm -f $ZIPF
+    
+}
+
 build () {
     baserom=$(basename $1)
     kernel=$(basename $2)
@@ -185,4 +198,6 @@ build () {
     merge $TEMP_DIR/$kernel "$KERNEL_DIRS"
 
     mix_extra
+    zipped_sign
+    
 }
