@@ -2,7 +2,9 @@
 
 PKGNAME=tjyMOD
 VERSION=0.1
-DIRS="system data kernel"
+DIRS="system data kernel META-INF"
+BASEROM_DIRS="system data META-INF"
+KERNEL_DIRS="system data kernel"
 
 DOWN_DIR="$workdir/../download"
 TEMP_DIR="$workdir/../tmp"
@@ -35,7 +37,7 @@ dexec () {
 }
 
 unpack () {
-    ewarn "unpack: $1"
+    ewarn "unpack: $(readlink -f $1)"
     test -d $TEMP_DIR || mkdir -p $TEMP_DIR
     out="$(basename $1)"
     dexec unzip -x $1 -d $TEMP_DIR/$out >> $LOG 2>&1
@@ -117,71 +119,70 @@ all_cleanup () {
     rm -fr $DOWN_DIR
 }
 
+merge () {
+    target=$1
+    dirs="$2"
+
+    for t in $target
+    do
+        ewarn_n "Reconstrunction: \033[1;31m$(basename $t)\033[0m [$dirs]\n * "
+        (
+            cd $t
+            for d in $dirs
+            do
+                if test -d $d; then
+                    echo -ne "\033[1;36m$(basename $d)\033[0m "
+                    tar cf - $d | (cd $OUT_DIR; tar xfv -) >> $LOG 2>&1
+                fi
+            done
+        )
+        echo -ne "\n"
+        rm -fr $t
+    done
+}
+
+strip_modules () {
+    rm -fr $OUT_DIR/system/lib/modules
+}
+
+mix_extra () {
+    ewarn_n "Mixup: $(readlink -f $EXTR_DIR)\n * "
+    cd $EXTR_DIR
+    for d in $DIRS
+    do
+        if test -d $d; then
+            echo -ne "\033[1;36m$(basename $d)\033[0m "
+            tar cf - $d | (cd $OUT_DIR; tar xvf -) >> $LOG 2>&1
+        fi
+    done
+    echo -ne "\n"
+
+    ewarn_n "APPEND: $(readlink -f $OUT_DIR)\n * "
+    cd $OUT_DIR
+    for f in $(find . -name "*.append")
+    do
+        test -f $f && (
+            name=$(basename $f .append)
+                tdir=$(dirname $f)
+                echo -ne "\033[1;36m$name\033[0m "
+                cat ${tdir}/${name} $f > ${name}.new
+                mv ${name}.new ${tdir}/${name}
+        )
+        rm -f $f
+    done
+    echo -ne "\n"
+}
+
 build () {
     baserom=$(basename $1)
     kernel=$(basename $2)
 
-    ewarn_n "Reconstrunction:"
     test -d $OUT_DIR && rm -fr $OUT_DIR
     mkdir -p $OUT_DIR
-    echo -ne "\033[1;31m$(basename $t)\033[0m "
-    for t in $TEMP_DIR/$baserom
-    do
-        (
-            cd $t
-            for d in $DIRS
-            do
-                if test -d $d; then
-                    tar cf - $d | (cd $OUT_DIR; tar xfv -) >> $LOG 2>&1
-                fi
-            done
-        )
-        rm -fr $t
-    done
 
-    (
-        cd $OUT_DIR
-        rm -fr system/lib/modules
-    )
+    merge $TEMP_DIR/$baserom "$BASEROM_DIRS"
+    strip_modules
+    merge $TEMP_DIR/$kernel "$KERNEL_DIRS"
 
-    for t in $TEMP_DIR/$kernel
-    do
-        echo -ne "\033[1;31m$(basename $t)\033[0m "
-        (
-            cd $t
-            for d in $DIRS
-            do
-                if test -d $d; then
-                    tar cf - $d | (cd $OUT_DIR; tar xfv -) >> $LOG 2>&1
-                fi
-            done
-        )
-        rm -fr $t
-    done
-    echo -ne "\n"
-
-    (
-        cd $EXTR_DIR
-        ewarn_n "Mixup:"
-        for d in system data
-        do
-            echo -ne "\033[1;31m$(basename $d)\033[0m "
-            tar cf - $d | (cd $OUT_DIR; tar xvf -) >> $LOG 2>&1
-        done
-        echo -ne "\n"
-        cd $OUT_DIR
-        ewarn_n "APPEND:"
-        for f in $(find . -name "*.append")
-        do
-            test -f $f && (
-                name=$(basename $f .append)
-                tdir=$(dirname $f)
-                echo -ne "\033[1;31m$name\033[0m "
-                cat ${tdir}/${name} $f > ${name}.new
-                mv ${name}.new ${tdir}/${name}
-            )
-            rm -f $f
-        done
-        echo -ne "\n"
-    )
+    mix_extra
 }
