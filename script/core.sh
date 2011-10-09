@@ -2,18 +2,28 @@
 
 PKGNAME=tjyMOD
 VERSION=0.1
+
+giturl="git://github.com/ac1965/DD.git"
+default_kernel="lordmodUEv7.2-CFS-b13.zip"
+default_baserom="cm_ace_full-220.zip"
+KERNELBASE=https://dl.dropbox.com/s/2lar8mywh2u9ctk  # lordmodUEv7.2-CFS-b13.zip?dl=1
+ROMBASE=http://download.cyanogenmod.com/get          # cm_ace_full-XXX.zip
+
 DIRS="system data kernel META-INF"
 BASEROM_DIRS="system data META-INF"
 KERNEL_DIRS="system data kernel"
+CLEAN_LIST="kernel \
+            system/app/Provision.apk \
+            system/app/ADWLauncher.apk \
+            system/app/MarketUpgrader.apk \
+            setup/kor" # for the moment
 
 DOWN_DIR="$workdir/../download"
+ART_DIR="$workdir/../artwork"
 TEMP_DIR="$workdir/../tmp"
-OUT_DIR="$workdir/../out/${PKGNAME}_$(date +%Y%m%d)"
+OUT_DIR="$workdir/../out/${PKGNAME}_$dt"
 EXTR_DIR="$workdir/../extra"
 TOOLS_DIR="$workdir/../tools"
-
-KERNELBASE=https://dl.dropbox.com/s/2lar8mywh2u9ctk  # lordmodUEv7.2-CFS-b13.zip?dl=1
-ROMBASE=http://download.cyanogenmod.com/get          # cm_ace_full-XXX.zip
 
 die () {
 	echo -e "\033[1;30m>\033[0;31m>\033[1;31m> ERROR:\033[0m ${@}" && exit 1
@@ -126,23 +136,26 @@ merge () {
 
     for t in $target
     do
-        ewarn_n "Reconstrunction: \033[1;31m$(basename $t)\033[0m [$dirs]\n * "
+        ewarn_n "Reconstrunction: \033[0;31m$(basename $t)\033[0m \033[1;30m[$dirs]\033[0m\n * "
         (
             cd $t
             for d in $dirs
             do
                 if test -d $d; then
-                    echo -ne "\033[1;36m$(basename $d)\033[0m "
+                    echo -ne "\033[0;36m$(basename $d)\033[0m "
                     tar cf - $d | (cd $OUT_DIR; tar xfv -) >> $LOG 2>&1
                 fi
             done
         )
         echo -ne "\n"
-        rm -fr $t
     done
 }
 
-strip_modules () {
+remove_modules () {
+    for t in $1 $2
+    do
+        rm -fr $t
+    done
     rm -fr $OUT_DIR/system/lib/modules
 }
 
@@ -152,7 +165,7 @@ mix_extra () {
     for d in $DIRS
     do
         if test -d $d; then
-            echo -ne "\033[1;36m$(basename $d)\033[0m "
+            echo -ne "\033[0;36m$(basename $d)\033[0m "
             tar cf - $d | (cd $OUT_DIR; tar xvf -) >> $LOG 2>&1
         fi
     done
@@ -165,7 +178,7 @@ mix_extra () {
         test -f $f && (
             name=$(basename $f .append)
                 tdir=$(dirname $f)
-                echo -ne "\033[1;36m$name\033[0m "
+                echo -ne "\033[0;36m$name\033[0m "
                 cat ${tdir}/${name} $f > ${name}.new
                 mv ${name}.new ${tdir}/${name}
         )
@@ -174,16 +187,48 @@ mix_extra () {
     echo -ne "\n"
 }
 
+mkbootimg () {
+    OLDIMG=$1
+    ZIMAGE=$2
+    BOOT=$3
+    
+    T="$TEMP_DIR/mkbootimg"
+
+    test -d $T || mkdir -p $T
+    dexec dd if=$OLDIMG of=$TEMP_DIR/boot.img
+    dexec $TOOLS_DIR/unpackbootimg -i $TEMP_DIR/boot.img -o $T
+    dexec $TOOLS_DIR/mkbootimg --kernel $ZIMAGE --ramdisk $T/boot.img-ramdisk.gz \
+        --cmdline $(cat $T/boot.img-cmdline) \
+        --base $(cat $T/boot.img-base) \
+        --output $BOOT
+    rm -fr $T $TEMP_DIR/boot.img
+}
+
 zipped_sign () {
-    ZIPF="$(readlink -f $OUT_DIR/../${PKGNAME}_$(date +%Y%m%d).zip)"
-    OUTF="$(readlink -f $OUT_DIR/../update-${PKGNAME}_$(date +%Y%m%d).zip)"
+    ZIPF="$(readlink -f $OUT_DIR/../${PKGNAME}_${dt}.zip)"
+    OUTF="$(readlink -f $OUT_DIR/../${PKGNAME}-${dt}.signed.zip)"
+    ewarn_n "BUILD ROM: $(basename $OUTF)\n * "
     cd $OUT_DIR
     test -f $ZIPF && rm -f $ZIPF
+    echo -ne "\033[0;36mcustomize ("
+    cat $ART_DIR/logo.txt META-INF/com/google/android/updater-script > _u
+    mv _u META-INF/com/google/android/updater-script
+    sed -i '/mount("ext4", "EMMC", "\/dev\/block\/mmcblk0p25",/a mount("ext4", "EMMC", "/dev/block/mmcblk0p26", "/data");' \
+        META-INF/com/google/android/updater-script
     sed -i '/package_extract_dir("system",/a package_extract_dir("data", "/data");' \
         META-INF/com/google/android/updater-script
-    zip -r $ZIPF .
-    java -jar $TOOLS_DIR/signapk.jar $TOOLS_DIR/certification.pem key.pk8 $ZIPF $OUTF && rm -f $ZIPF
-    
+    for f in $CLEAN_LIST
+    do
+        test -f $f && (rm -f $f; echo -ne "$f ")
+        test -d $f && (rm -fr $f; echo -ne "$f ")
+    done
+    echo -ne ")"
+    echo -ne " => zipped"
+    dexec zip -r9 $ZIPF . >> $LOG 2>&1
+    echo -ne " => sign-zipped\033[0m"
+    dexec java -jar $TOOLS_DIR/signapk.jar $TOOLS_DIR/certification.pem $TOOLS_DIR/key.pk8 \
+        $ZIPF $OUTF && rm -f $ZIPF
+    echo -ne "\n"
 }
 
 build () {
@@ -193,11 +238,12 @@ build () {
     test -d $OUT_DIR && rm -fr $OUT_DIR
     mkdir -p $OUT_DIR
 
+
     merge $TEMP_DIR/$baserom "$BASEROM_DIRS"
-    strip_modules
     merge $TEMP_DIR/$kernel "$KERNEL_DIRS"
+    mkbootimg $TEMP_DIR/$baserom/boot.img $TEMP_DIR/$kernel/kernel/zImage $OUT_DIR/boot.img
+    remove_modules $TEMP_DIR/$baserom $TEMP_DIR/$kernel
 
     mix_extra
     zipped_sign
-    
 }

@@ -3,14 +3,10 @@
 set -e
 
 workdir="$(readlink -f $(dirname $0))"
+dt=$(date +%Y%m%d)
 
 . $workdir/core.sh || exit 1
 
-giturl="git://github.com/ac1965/DD.git"
-default_kernel="lordmodUEv7.2-CFS-b13.zip"
-default_baserom="cm_ace_full-220.zip"
-
-dt=$(date +%Y%m%d)
 verbose=0
 logf=$workdir/../$(basename $0 .sh)_$dt.log
 kernel_file=
@@ -66,13 +62,13 @@ test $verbose = 0 && LOG=$logf
 test -z $kernel_file && kernel_file=$default_kernel
 test -z $baserom_file && baserom_file=$default_baserom
 test -f $logf && mv $logf $logf.prev
-echo "LOG:$LOG"
+echo -e "\t\033[1;30mLOG:$LOG\033[0m"
 
 for option
 do
     case "$option" in
         all)
-            einfo "Automatic Build ROM : CM7 nigthly and LorDmodUE kernel"
+            einfo "Automatic Build ROM"
             cleanup && get_baserom $baserom_file && get_kernel $kernel_file && build $baserom_file $kernel_file
             ;;
         clean)

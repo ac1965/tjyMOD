@@ -1,0 +1,17 @@
+ui_print("                                       ");
+ui_print("                                       ");
+ui_print("                                       ");
+ui_print("                                       ");
+ui_print("                                       ");
+ui_print("                                       ");
+ui_print("                                       ");
+ui_print("                                       ");
+ui_print("                                       ");
+ui_print("                                       ");
+ui_print("                                       ");
+ui_print("                                       ");
+ui_print("                                       ");
+ui_print("                                       ");
+ui_print("============================================");
+ui_print("        by   tjy1965 AT gmail DOT com       ");
+ui_print("");
