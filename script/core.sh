@@ -149,7 +149,6 @@ merge () {
         )
         echo -ne "\n"
     done
-    test -d $OUT_DIR/system/lib/modules && rm -fr $OUT_DIR/system/lib/modules
 
 }
 
@@ -158,6 +157,28 @@ remove () {
     do
         rm -fr $t
     done
+}
+
+pretty_fix () {
+    suffix=$1
+
+    cd $OUT_DIR
+    for f in $(find . -name "*.${suffix}")
+    do
+        test -f $f && (
+            name=$(basename $f .${suffix})
+            tdir=$(dirname $f)
+            echo -ne "\033[0;36m$name\033[0m "
+            if [ x"$suffix" = x"prepend" ]; then
+                cat $f ${tdir}/${name} > ${name}.new
+            else
+                cat ${tdir}/${name} $f > ${name}.new
+            fi
+            mv ${name}.new ${tdir}/${name}
+        )
+        rm -f $f
+    done
+    echo -ne "\n"
 }
 
 mix_extra () {
@@ -173,34 +194,9 @@ mix_extra () {
     echo -ne "\n"
 
     ewarn_n "PRE: $(readlink -f $OUT_DIR)\n * "
-    cd $OUT_DIR
-    for f in $(find . -name "*.prepend")
-    do
-        test -f $f && (
-            name=$(basename $f .append)
-                tdir=$(dirname $f)
-                echo -ne "\033[0;36m$name\033[0m "
-                cat $f ${tdir}/${name} > ${name}.new
-                mv ${name}.new ${tdir}/${name}
-        )
-        rm -f $f
-    done
-    echo -ne "\n"
-
+    pretty_fix "prepend"
     ewarn_n "APPEND: $(readlink -f $OUT_DIR)\n * "
-    cd $OUT_DIR
-    for f in $(find . -name "*.append")
-    do
-        test -f $f && (
-            name=$(basename $f .append)
-                tdir=$(dirname $f)
-                echo -ne "\033[0;36m$name\033[0m "
-                cat ${tdir}/${name} $f > ${name}.new
-                mv ${name}.new ${tdir}/${name}
-        )
-        rm -f $f
-    done
-    echo -ne "\n"
+    pretty_fix "append"
 }
 
 mkbootimg () {
@@ -257,6 +253,7 @@ build () {
 
 
     merge $TEMP_DIR/$baserom "$BASEROM_DIRS"
+    test -d $OUT_DIR/system/lib/modules && rm -fr $OUT_DIR/system/lib/modules
     merge $TEMP_DIR/$kernel "$KERNEL_DIRS"
     mkbootimg $TEMP_DIR/$baserom/boot.img $TEMP_DIR/$kernel/kernel/zImage $OUT_DIR/boot.img
     remove $TEMP_DIR/$baserom $TEMP_DIR/$kernel
