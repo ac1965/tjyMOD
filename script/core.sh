@@ -4,7 +4,7 @@ PKGNAME=tjyMOD
 VERSION=0.1
 LOCALE=JAPAN # sdcard/gpsconf/..
 
-giturl="git://github.com/ac1965/DD.git"
+giturl="git://github.com/ac1965/tjyMOD.git"
 default_kernel="lordmodUEv7.2-CFS-b13.zip"
 default_baserom="cm_ace_full-220.zip"
 KERNELBASE=https://dl.dropbox.com/s/2lar8mywh2u9ctk  # lordmodUEv7.2-CFS-b13.zip?dl=1
@@ -229,7 +229,7 @@ zipped_sign () {
     ewarn_n "BUILD ROM: $(basename $OUTF)\n * "
     cd $OUT_DIR
     test -f $ZIPF && rm -f $ZIPF
-    echo -ne "\033[0;36mcustomize ("
+    echo -ne "\033[0;36mcustomize"
     sed -i 's/DD_VERSION/'${PKGNAME}-v${VERSION}_${dt}'/' system/build.prop
     cat $ART_DIR/logo.txt META-INF/com/google/android/updater-script > _u
     mv _u META-INF/com/google/android/updater-script
@@ -243,20 +243,16 @@ zipped_sign () {
         META-INF/com/google/android/updater-script
 	sed -i '/unmount("\/system");/a unmount("/data");' \
         META-INF/com/google/android/updater-script
-    test -f $GPS_DIR/${LOCALE}.zip && \
-        unzip $GPS_DIR/${LOCALE}.zip -d $TEMP_DIR/gps >> $LOG 2>&1
-    test -f $TEMP_DIR/gps/system/etc/gps.conf && \
-        cp $TEMP_DIR/gps/system/etc/gps.conf $OUT_DIR/system/etc
-    test -d $TEMP_DIR/gps && rm -fr $TEMP_DIR/gps
+    test -d $GPS_DIR/${LOCALE} && \
+        dexec cp $GPS_DIR/$LOCALE/gps.conf $OUT_DIR/system/etc
     
     echo "BASEROM : $(basename $baserom_file)" > $OUT_DIR/build_${NAME}.txt
     echo "KERNEL  : $(basename $kernel_file)" >> $OUT_DIR/build_${NAME}.txt
     for f in $CLEAN_LIST
     do
-        test -f $f && (rm -f $f; echo -ne "$f ")
-        test -d $f && (rm -fr $f; echo -ne "$f ")
+        test -f $f && rm -f $f
+        test -d $f && rm -fr $f
     done
-    echo -ne ")"
     echo -ne " => zipped"
     dexec zip -r9 $ZIPF . >> $LOG 2>&1
     echo -ne " => sign-zipped\033[0m"
