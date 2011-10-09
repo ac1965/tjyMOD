@@ -239,7 +239,9 @@ zipped_sign () {
         META-INF/com/google/android/updater-script
     sed -i '/package_extract_dir("data",/a package_extract_dir("sdcard","/sdcard");' \
         META-INF/com/google/android/updater-script
-    sed -i '/umount("\/system",/i umount("/data");' \
+    sed -i '/set_perm(0, 0, 06755, "\/system\/xbin\/tcpdump");/a symlink("/system/etc/init.d/70aufs", "/system/xbin/aufs");' \
+        META-INF/com/google/android/updater-script
+	sed -i '/unmount("\/system");/a unmount("/data");' \
         META-INF/com/google/android/updater-script
     test -f $GPS_DIR/${LOCALE}.zip && \
         unzip $GPS_DIR/${LOCALE}.zip -d $TEMP_DIR/gps >> $LOG 2>&1
