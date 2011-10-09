@@ -149,14 +149,15 @@ merge () {
         )
         echo -ne "\n"
     done
+    test -d $OUT_DIR/system/lib/modules && rm -fr $OUT_DIR/system/lib/modules
+
 }
 
-remove_modules () {
-    for t in $1 $2
+remove () {
+    for t in "$@"
     do
         rm -fr $t
     done
-    rm -fr $OUT_DIR/system/lib/modules
 }
 
 mix_extra () {
@@ -168,6 +169,21 @@ mix_extra () {
             echo -ne "\033[0;36m$(basename $d)\033[0m "
             tar cf - $d | (cd $OUT_DIR; tar xvf -) >> $LOG 2>&1
         fi
+    done
+    echo -ne "\n"
+
+    ewarn_n "PRE: $(readlink -f $OUT_DIR)\n * "
+    cd $OUT_DIR
+    for f in $(find . -name "*.prepend")
+    do
+        test -f $f && (
+            name=$(basename $f .append)
+                tdir=$(dirname $f)
+                echo -ne "\033[0;36m$name\033[0m "
+                cat $f ${tdir}/${name} > ${name}.new
+                mv ${name}.new ${tdir}/${name}
+        )
+        rm -f $f
     done
     echo -ne "\n"
 
@@ -211,6 +227,7 @@ zipped_sign () {
     cd $OUT_DIR
     test -f $ZIPF && rm -f $ZIPF
     echo -ne "\033[0;36mcustomize ("
+    sed -i 's/DD_VERSION/'${PKGNAME}-v${VERSION}_${dt}'/' system/build.prop
     cat $ART_DIR/logo.txt META-INF/com/google/android/updater-script > _u
     mv _u META-INF/com/google/android/updater-script
     sed -i '/mount("ext4", "EMMC", "\/dev\/block\/mmcblk0p25",/a mount("ext4", "EMMC", "/dev/block/mmcblk0p26", "/data");' \
@@ -242,7 +259,7 @@ build () {
     merge $TEMP_DIR/$baserom "$BASEROM_DIRS"
     merge $TEMP_DIR/$kernel "$KERNEL_DIRS"
     mkbootimg $TEMP_DIR/$baserom/boot.img $TEMP_DIR/$kernel/kernel/zImage $OUT_DIR/boot.img
-    remove_modules $TEMP_DIR/$baserom $TEMP_DIR/$kernel
+    remove $TEMP_DIR/$baserom $TEMP_DIR/$kernel
 
     mix_extra
     zipped_sign
