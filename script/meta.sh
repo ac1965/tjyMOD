@@ -54,7 +54,7 @@ do
             prev=baserom_file;;
         --baserom=*|-baserom=*|-b=*|-r=*)
             # baserom_file=$optarg;;
-            die "argument miss: $optarg";;
+            die "cargument miss: $optarg";;
     esac
 done
 
@@ -69,11 +69,17 @@ do
     case "$option" in
         all)
             einfo "Automatic Build ROM"
-            cleanup && get_baserom $baserom_file && get_kernel $kernel_file && build $baserom_file $kernel_file
+            cleanup && \
+                pretty_get $baserom_file "baserom" && \
+                pretty_get $kernel_file "kernel" \
+                && build $baserom_file $kernel_file
             ;;
         clean)
             einfo "Cleaning"
             all_cleanup
             ;;
+        *)
+            ewarn "Invaild argument"
+            usage;;
     esac
 done

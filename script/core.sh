@@ -6,7 +6,7 @@ LOCALE=JAPAN # sdcard/gpsconf/..
 
 giturl="git://github.com/ac1965/tjyMOD.git"
 default_kernel="lordmodUEv7.2-CFS-b13.zip"
-default_baserom="cm_ace_full-220.zip"
+default_baserom="cm_ace_full-221.zip"
 KERNELBASE=https://dl.dropbox.com/s/2lar8mywh2u9ctk  # lordmodUEv7.2-CFS-b13.zip?dl=1
 ROMBASE=http://download.cyanogenmod.com/get          # cm_ace_full-XXX.zip
 
@@ -69,59 +69,42 @@ download () {
     md5sum $DOWN_DIR/$target > $DOWN_DIR/${target}.sum
 }
 
-kernel_download () {
+pretty_download () {
     target=$1
+    url=$2
 
+    if [ -f $DOWN_DIR/${target}.sum ]; then
+        cd $DOWN_DIR
+        md5sum --status --check ${target}.sum
+        case "$?" in
+            0) ewarn "md5sum:$target checked, cached use.";;
+            1) download $url $target;;
+        esac
+        cd - > /dev/null
+    else
+        download $url $target
+    fi
+    unpack $DOWN_DIR/$target
+
+}
+
+pretty_get () {
+    arg=$1
+    which=$2 # kernel or baserom
     
-    if [ -f $DOWN_DIR/${target}.sum ]; then
-        cd $DOWN_DIR
-        md5sum --status --check ${target}.sum
-        case "$?" in
-            0) ewarn "md5sum:$target checked, cached use.";;
-            1) download $KERNELBASE/${target}?dl=1 $target;;
-        esac
-        cd - > /dev/null
+    fname=$(readlink -f $arg)
+    test x"" = x"$fname" && die "can not get $arg"
+    target=$(basename $fname)
+    
+    ewarn "Get $which: $target"
+    if [ $which = "kernel" ]; then
+        url="$KERNELBASE/${target}?dl=1"
+    elif [ $which = "baserom" ]; then
+        url="$ROMBASE/$target"
     else
-        download $KERNELBASE/${target}?dl=1 $target
+        die "pretty_get()"
     fi
-    unpack $DOWN_DIR/$target
-}
-
-baserom_download () {
-    target=$1
-
-    if [ -f $DOWN_DIR/${target}.sum ]; then
-        cd $DOWN_DIR
-        md5sum --status --check ${target}.sum
-        case "$?" in
-            0) ewarn "md5sum:$target checked, cached use.";;
-            1) download $ROMBASE/$target $target;;
-        esac
-        cd - > /dev/null
-    else
-        download $ROMBASE/$target $target
-    fi
-    unpack $DOWN_DIR/$target
-}
-
-get_kernel () {
-    arg=$1
-    kernel=$(readlink -f $arg)
-    test x"" = x"$kernel" && die "can not get $1"
-    target=$(basename $kernel)
-
-    ewarn "Get Kernel: $target"
-    test -f $kernel && unpack $kernel || kernel_download $target
-}
-
-get_baserom () {
-    arg=$1
-    baserom=$(readlink -f $arg)
-    test x"" = x"$baserom" && die "can not get $1"
-    target=$(basename $baserom)
-
-    ewarn "Get ROM: $target"
-    test -f $baserom && unpack $baserom || baserom_download $target
+    test -f $fname && unpack $fname || pretty_download $target $url
 }
 
 cleanup () {
