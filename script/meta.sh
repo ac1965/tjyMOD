@@ -78,8 +78,5 @@ do
             einfo "Cleaning"
             all_cleanup
             ;;
-        *)
-            ewarn "Invaild argument"
-            usage;;
     esac
 done
