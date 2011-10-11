@@ -114,6 +114,7 @@ cleanup () {
 all_cleanup () {
     cleanup
     rm -fr $DOWN_DIR
+    rm -fr $OUT_DIR
 }
 
 merge () {
