@@ -42,9 +42,6 @@ do
     esac
 
     case $option in
-        --verbose|-verbose|-v)
-            LOG=/dev/stdout
-            verbose=1;;
         --kernel|-kernel|-k)
             prev=kernel_file;;
         --kernel=*|-kernel=*|-k=*)
@@ -67,6 +64,9 @@ echo -e "\t\033[1;30mLOG:$LOG\033[0m"
 for option
 do
     case "$option" in
+        --verbose|-verbose|-v)
+            LOG=/dev/stdout
+            verbose=1;;
         all)
             einfo "Automatic Build ROM"
             cleanup && \
