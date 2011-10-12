@@ -36,7 +36,6 @@ do
     fi
 
     case $option in
-        --help|-help|-h) usage;;
         *=*) optarg=$(echo $option | cut -d "=" -f 2,3);;
         *)   optarg=yes;;
     esac
@@ -45,14 +44,25 @@ do
         --kernel|-kernel|-k)
             prev=kernel_file;;
         --kernel=*|-kernel=*|-k=*)
-            # kernel_file=$optarg;;
-            die "argument miss: $optarg";;
+            kernel_file=$optarg;;
         --baserom|-baserom|-b|-r)
             prev=baserom_file;;
         --baserom=*|-baserom=*|-b=*|-r=*)
-            # baserom_file=$optarg;;
-            die "argument miss: $optarg";;
+            baserom_file=$optarg;;
+        --help|-help|-h) usage;;
+        -*) die "recognized option: $optarg";;
     esac
+
+    for var in kernel_file baserom_file
+    do
+        eval val=$`echo $var`
+        test -z $val && continue
+        abspath=$(readlink -f $val)
+        case $abspath in
+            [\\/$]* | ?:[\\/]*) eval $var=\$abspath;;
+            *) die "expected an absolute name for $var:$val";;
+        esac
+    done
 done
 
 test $verbose = 0 && LOG=$logf
