@@ -51,7 +51,7 @@ do
             prev=baserom_file;;
         --baserom=*|-baserom=*|-b=*|-r=*)
             # baserom_file=$optarg;;
-            die "cargument miss: $optarg";;
+            die "argument miss: $optarg";;
     esac
 done
 
