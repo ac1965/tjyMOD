@@ -69,7 +69,6 @@ test $verbose = 0 && LOG=$logf
 test -z $kernel_file && kernel_file=$default_kernel
 test -z $baserom_file && baserom_file=$default_baserom
 test -f $logf && mv $logf $logf.prev
-echo -e "\t\033[1;30mLOG:$LOG\033[0m"
 
 for option
 do
@@ -79,6 +78,7 @@ do
             verbose=1;;
         all)
             einfo "Automatic Build ROM"
+            echo -e "\t\033[1;30mLOG:$LOG\033[0m"
             cleanup && \
                 pretty_get $baserom_file "baserom" && \
                 pretty_get $kernel_file "kernel" \
