@@ -141,9 +141,10 @@ ril () {
 }
 
 density () {
-	local DENSITY=$1
+	local DENSITY=$1 # 240<= DENSITY >= 190
 	CHAR_STOP=$(expr "$DENSITY" : '\([0-9]*\)')
 	test "$DENSITY" != "$CHAR_STOP" && die "Illegal Value : $DENSITY"
+	test $DENSITY -ge 190 -a $DENSITY -le 240 || die "Illegal Value Density:$DENSITY (240<= DENSITY >=190)"
 	Remount "rw"
   	sed -i "s/ro.sf.lcd_density=.*/ro.sf.lcd_density=$DENSITY/g" /system/build.prop
   	Remount "ro"
