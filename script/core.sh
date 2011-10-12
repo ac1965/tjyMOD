@@ -29,19 +29,19 @@ SDCARD_DIR="$workdir/../sdcard"
 GPS_DIR="$workdir/../sdcard/gpsconf"
 
 die () {
-	echo -e "\033[1;30m>\033[0;31m>\033[1;31m> ERROR:\033[0m ${@}" && exit 1
+    echo -e "\033[1;30m>\033[0;31m>\033[1;31m> ERROR:\033[0m ${@}" && exit 1
 }
 
 einfo () {
-	echo -ne "\033[1;30m>\033[0;36m>\033[1;36m> \033[0m${@}\n"
+    echo -ne "\033[1;30m>\033[0;36m>\033[1;36m> \033[0m${@}\n"
 }
 
 ewarn () {
-	echo -ne "\033[1;30m>\033[0;33m>\033[1;33m> \033[0m${@}\n"
+    echo -ne "\033[1;30m>\033[0;33m>\033[1;33m> \033[0m${@}\n"
 }
 
 ewarn_n () {
-	echo -ne "\033[1;30m>\033[0;33m>\033[1;33m> \033[0m${@} "
+    echo -ne "\033[1;30m>\033[0;33m>\033[1;33m> \033[0m${@} "
 }
 
 dexec () {
@@ -180,8 +180,8 @@ mix_extra () {
     done
     echo -ne "\n"
 
-	test -d $OUT_DIR/sdcard && rm -fr $OUT_DIR/sdcard
-	dexec cp -a $SDCARD_DIR $OUT_DIR
+    test -d $OUT_DIR/sdcard && rm -fr $OUT_DIR/sdcard
+    dexec cp -a $SDCARD_DIR $OUT_DIR
 
     ewarn_n "PRE: $(readlink -f $OUT_DIR)\n * "
     pretty_fix "prepend"
@@ -217,15 +217,25 @@ zipped_sign () {
     sed -i 's/DD_VERSION/'${PKGNAME}-v${VERSION}_${dt}'/' system/build.prop
     cat $ART_DIR/logo.txt META-INF/com/google/android/updater-script > _u
     mv _u META-INF/com/google/android/updater-script
-    sed -i '/mount("ext4", "EMMC", "\/dev\/block\/mmcblk0p25",/a mount("ext4", "EMMC", "/dev/block/mmcblk0p26", "/data");' \
+    sed -i '/mount("ext4", "EMMC", "\/dev\/block\/mmcblk0p25",/a \
+mount("ext4", "EMMC", "/dev/block/mmcblk0p26", "/data");' \
         META-INF/com/google/android/updater-script
-    sed -i '/package_extract_dir("system",/a package_extract_dir("data","/data");' \
+    sed -i '/package_extract_dir("system",/a \
+package_extract_dir("data","/data"); \
+package_extract_dir("sdcard","/sdcard");' \
         META-INF/com/google/android/updater-script
-    sed -i '/package_extract_dir("data",/a package_extract_dir("sdcard","/sdcard");' \
+    sed -i '/set_perm(0, 0, 06755, "\/system\/xbin\/tcpdump");/a \
+symlink("/system/etc/init.d/70aufs", "/system/xbin/aufs");' \
         META-INF/com/google/android/updater-script
-    sed -i '/set_perm(0, 0, 06755, "\/system\/xbin\/tcpdump");/a symlink("/system/etc/init.d/70aufs", "/system/xbin/aufs");' \
-        META-INF/com/google/android/updater-script
-	sed -i '/unmount("\/system");/a unmount("/data");' \
+    sed -i '/unmount("\/system");/a \
+unmount("/data"); \
+ui_print("* Wipe /cache"); \
+unmount("/cache"); \
+format("ext4", "EMMC", "/dev/block/mmcblk0p27"); \
+ui_print("* Wipe dalvik-cache"); \
+mount("ext4", "EMMC", "/dev/block/mmcblk0p26", "/data"); \
+delete_recursive("/data/dalvik-cache"); \
+unmount("/data");' \
         META-INF/com/google/android/updater-script
     test -d $GPS_DIR/${LOCALE} && \
         dexec cp $GPS_DIR/$LOCALE/gps.conf $OUT_DIR/system/etc

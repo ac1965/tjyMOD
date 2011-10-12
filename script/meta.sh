@@ -36,7 +36,7 @@ do
     fi
 
     case $option in
-        *=*) optarg=$(echo $option | cut -d "=" -f 2,3);;
+        *=*) optarg=$(echo $option | cut -d'=' -f2,3);;
         *)   optarg=yes;;
     esac
 
@@ -57,7 +57,7 @@ do
     do
         eval val=$`echo $var`
         test -z $val && continue
-        abspath=$(readlink -f $val)
+        abspath=$(readlink -f $(echo $val))
         case $abspath in
             [\\/$]* | ?:[\\/]*) eval $var=\$abspath;;
             *) die "expected an absolute name for $var:$val";;
