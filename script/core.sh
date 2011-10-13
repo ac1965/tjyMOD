@@ -50,6 +50,16 @@ dexec () {
     eval $CMD >> $LOG 2>&1 || die "Die:$CMD"
 }
 
+usage () {
+    cat <<EOF
+Usage:
+   $PKGNAME (-v) all (--kernel KERNEL_FILE) (--baserom ROM_FILE)
+   $PKGNAME (-v) clean
+
+EOF
+    exit
+}
+
 unpack () {
     ewarn "unpack: $(readlink -f $1)"
     test -d $TEMP_DIR || mkdir -p $TEMP_DIR
