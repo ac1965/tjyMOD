@@ -8,19 +8,9 @@ dt=$(date +%Y%m%d)
 . $workdir/core.sh || exit 1
 
 verbose=0
-logf=$workdir/../$(basename $0 .sh)_$dt.log
 kernel_file=
 baserom_file=
-
-usage () {
-    cat <<EOF
-Usage:
-   $PKGNAME (-v) all (--kernel KERNEL_FILE) (--baserom ROM_FILE)
-   $PKGNAME (-v) clean
-
-EOF
-    exit
-}
+logf=$workdir/../$(basename $0 .sh)_$dt.log
 
 einfo "Android ROM Build v${VERSION} - ${giturl}"
 
