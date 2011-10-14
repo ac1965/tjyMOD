@@ -51,12 +51,16 @@ Reboot () {
 InstallMarket () {
 	local APK=$1
 	local APPF="/system/app/Vending.apk"
+	local APP_PATH="$(pm path com.android.vending | cut -d':' -f2)"
 	Remount "rw"
+	rm -f $APP_PATH /data/app/com.android.venging*apk
 	pm uninstall com.android.vending
-	rm -f /data/app/com.android.venging*apk
+	rm -f /data/dalvik-cache/*com.android.vending*
 	cp $APK $APPF
 	chmod 644 $APPF
+	sync;sync;sync;sleep 3  # delay
 	pm install $APPF
+	sync;sync;sync;sleep 3  # delay
 	Remount "ro"
 }
 
