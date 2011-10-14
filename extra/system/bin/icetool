@@ -5,6 +5,9 @@
 
 set -e
 
+PRESET_PATH="/sdcard/tjyMOD"
+DEFAULT_MARKET_VERSION="2.3.6"
+
 declare -A CMD=(\
   [help]="This Messages" \
 	[reboot]="Reboot phone" \
@@ -45,7 +48,7 @@ Reboot () {
 	reboot
 }
 
-InstallMartet () {
+InstallMarket () {
 	local APK=$1
 	local APPF="/system/app/Vending.apk"
 	Remount "rw"
@@ -91,11 +94,11 @@ charge () {
 
 market () {
 	local VER=$1
-        APK=/sdcard/market/Vending-${VER}.apk
+        APK=${PRESET_PATH}/market/Vending-${VER}.apk
   	if [ -f $APK ]; then
     		InstallMarket $APK
-    		LaunchMarket
-    		echo "Market reverted to new version"
+    		LauncherMarket
+    		echo "Market reverted to new version $VER"
   	else
     		die "Couldn't find Market version $VER" 
   	fi
@@ -103,7 +106,7 @@ market () {
 
 gpsconf () {
 	local F=$1
-	ZIP=/sdcard/gps/conf/$F
+	ZIP=${PRESET_PATH}/gps/conf/$F
 	if [ -f "$ZIP" ]; then
 		Remount "rw"
 		cd /
@@ -126,7 +129,7 @@ dspinit () {
 
 ril () {
 	local DN=$1
-	DIR=/sdcard/ril/$DN
+	DIR=${PRESET_PATH}/ril/$DN
 	printf "RIL before patch: "
 	getprop | grep RIL | cut -d'[' -f3 | cut -d ']' -f1
 	test -z "$DZ" && die "Error: Please specify RIL"
