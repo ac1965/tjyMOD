@@ -3,7 +3,7 @@
 set -e
 
 workdir="$(readlink -f $(dirname $0))"
-dt=$(date +%Y%m%d)
+dt=$(date +%Y%m%d%H%M)
 
 . $workdir/core.sh || exit 1
 
