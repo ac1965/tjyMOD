@@ -5,8 +5,8 @@ VERSION=0.2
 LOCALE=JAPAN # sdcard/gpsconf/..
 
 giturl="git://github.com/ac1965/tjyMOD.git"
-default_kernel="lordmodUEv7.2-CFS-b13.zip"
-default_baserom="cm_ace_full-221.zip"
+default_kernel="update_2.6.35-BFS-WIP-AUFS_201110161155.zip"
+default_baserom="cm_ace_full-227.zip"
 default_gapps="gapps-gb-20110930-237-signed.zip"
 KERNELBASE=https://dl.dropbox.com/s/2lar8mywh2u9ctk  # lordmodUEv7.2-CFS-b13.zip?dl=1
 ROMBASE=http://download.cyanogenmod.com/get          # cm_ace_full-XXX.zip
