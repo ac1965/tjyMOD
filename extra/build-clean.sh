@@ -2,7 +2,7 @@
 
 wdir=$(readlink -f $(dirname $0))
 
-cd ${wdir}/../data/app
+cd ${wdir}/data/app
 for f in *.apk
 do
 	name=$(basename $f .apk)
