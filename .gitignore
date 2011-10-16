@@ -7,6 +7,8 @@
 out
 work
 download
+!download/gapps-gb-20110930-237-signed.zip
+!download/gapps-gb-20110930-237-signed.zip.sum
 tmp
 *.log
 *.prev

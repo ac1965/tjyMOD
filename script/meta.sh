@@ -10,7 +10,7 @@ dt=$(date +%Y%m%d%H%M)
 verbose=0
 kernel_file=
 baserom_file=
-logf=$workdir/../$(basename $0 .sh)_$dt.log
+logf=${O}/$(basename $0 .sh)_$dt.log
 
 einfo "Android ROM Build v${VERSION} - ${giturl}"
 
@@ -39,11 +39,15 @@ do
             prev=baserom_file;;
         --baserom=*|-baserom=*|-b=*|-r=*)
             baserom_file=$optarg;;
+        --gapps|-gapps|-g)
+            prev=gapps_file;;
+        --gapps=*|-gapps=*|-g-*)
+            gapps_file=$optarg;;
         --help|-help|-h) usage;;
         -*) die "recognized option: $optarg";;
     esac
 
-    for var in kernel_file baserom_file
+    for var in kernel_file baserom_file gapps_file
     do
         eval val=$`echo $var`
         test -z $val && continue
@@ -58,6 +62,8 @@ done
 test $verbose = 0 && LOG=$logf
 test -z $kernel_file && kernel_file=$default_kernel
 test -z $baserom_file && baserom_file=$default_baserom
+test -z $gapps_file && gapps_file=$default_gapps
+test -d $O || install -d $O
 test -f $logf && mv $logf $logf.prev
 
 for option
@@ -71,8 +77,9 @@ do
             echo -e "\t\033[1;30mLOG:$LOG\033[0m"
             cleanup && \
                 pretty_get $baserom_file "baserom" && \
-                pretty_get $kernel_file "kernel" \
-                && build $baserom_file $kernel_file
+                pretty_get $kernel_file "kernel" && \
+                pretty_get $gapps_file "gapps" && \
+                build $baserom_file $kernel_file $gapps_file
             ;;
         clean)
             einfo "Cleaning"
