@@ -75,7 +75,7 @@ do
         all)
             einfo "Automatic Build ROM"
             echo -e "\t\033[1;30mLOG:$LOG\033[0m"
-            cleanup && \
+            remove $TEMP_DIR $OUT_DIR && \
                 pretty_get $baserom_file "baserom" && \
                 pretty_get $kernel_file "kernel" && \
                 pretty_get $gapps_file "gapps" && \
@@ -83,7 +83,7 @@ do
             ;;
         clean)
             einfo "Cleaning"
-            all_cleanup
+            remove $TEMP_DIR $OUT_DIR
             ;;
     esac
 done
