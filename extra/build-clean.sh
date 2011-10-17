@@ -9,3 +9,4 @@ do
 	echo 'rm -f /data/app/'$name'-*.apk'
 done > ${wdir}/list
 cd - >/dev/null
+echo >> 'rm -f /system/lib/modules/*'
