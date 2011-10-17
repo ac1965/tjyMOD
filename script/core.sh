@@ -124,16 +124,6 @@ pretty_get () {
     test -f $fname && unpack $fname || pretty_download $target $url
 }
 
-cleanup () {
-    rm -fr $TEMP_DIR
-}
-
-all_cleanup () {
-    cleanup
-    rm -fr $DOWN_DIR
-    rm -fr $OUT_DIR
-}
-
 merge () {
     target=$1
     dirs="$2"
