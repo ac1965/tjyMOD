@@ -10,7 +10,7 @@ dt=$(date +%Y%m%d%H%M)
 verbose=0
 kernel_file=
 baserom_file=
-logf=${O}/$(basename $0 .sh)_$dt.log
+logf=${O}/${PKGNAME}_$dt.log
 
 einfo "Android ROM Build v${VERSION} - ${giturl}"
 
