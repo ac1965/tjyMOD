@@ -53,15 +53,16 @@ InstallMarket () {
 	local APPF="/system/app/Vending.apk"
 	local APP_PATH="$(pm path com.android.vending | cut -d':' -f2)"
 	Remount "rw"
-	rm -f $APP_PATH /data/app/com.android.venging*apk
-	pm uninstall com.android.vending
+	rm -f /data/app/com.android.venging*apk
 	rm -f /data/dalvik-cache/*com.android.vending*
+	rm -fr /data/data/com.android.vending/
 	cp $APK $APPF
+	cp $APK /data/app/com.android.vending.apk
 	chmod 644 $APPF
 	sync;sync;sync;sleep 3  # delay
-	pm install $APPF
-	sync;sync;sync;sleep 3  # delay
 	Remount "ro"
+	sync;sync;sync;sleep 3  # delay
+	Reboot 1
 }
 
 LauncherMarket () {
@@ -101,8 +102,6 @@ market () {
         APK=${PRESET_PATH}/market/Vending-${VER}.apk
   	if [ -f $APK ]; then
     		InstallMarket $APK
-    		LauncherMarket
-    		echo "Market reverted to new version $VER"
   	else
     		die "Couldn't find Market version $VER" 
   	fi
@@ -126,7 +125,10 @@ gpsconf () {
 }
 
 dspinit () {
-	local MODE=$1
+	local MODE=$1 # 20 >= MODE >= 00
+	CHAR_STOP=$(expr "$MODE" : '\([0-9]*\)')
+	test "$MODE" != "$CHAR_STOP" && die "Illegal Value : $MODE"
+	test $MODE -ge 00 -a $MODE -le 20 || die "Illegal Value Density:$MODE (20>= DENSITY >=00)"
 	snd3254 -dspmode $MODE
 	echo "DSP profile for $MODE applied"
 }
@@ -148,12 +150,12 @@ ril () {
 }
 
 density () {
-	local DENSITY=$1 # 240<= DENSITY >= 190
+	local DENSITY=$1 # 240 >= DENSITY >= 190
 	CHAR_STOP=$(expr "$DENSITY" : '\([0-9]*\)')
 	test "$DENSITY" != "$CHAR_STOP" && die "Illegal Value : $DENSITY"
-	test $DENSITY -ge 190 -a $DENSITY -le 240 || die "Illegal Value Density:$DENSITY (240<= DENSITY >=190)"
+	test $DENSITY -ge 190 -a $DENSITY -le 240 || die "Illegal Value Density:$DENSITY (240>= DENSITY >=190)"
 	Remount "rw"
-  	sed -i "s/ro.sf.lcd_density=.*/ro.sf.lcd_density=$DENSITY/g" /system/build.prop
+  	sed -i "s/ro.sf.lcd_density=.*/ro.sf.lcd_density=$DENSITY/" /system/build.prop
   	Remount "ro"
   	Reboot 5
 }
