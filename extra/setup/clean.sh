@@ -21,3 +21,4 @@ rm /data/app/com.quoord.tapatalkpro.activity-*.apk
 rm /data/app/com.xtralogic.android.logcollector-*.apk
 rm /data/app/dev.sci.systune-*.apk
 rm /data/app/ext.recovery.control-*.apk
+rm /system/lib/modules/*

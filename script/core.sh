@@ -30,8 +30,8 @@ OUT_DIR="${O}/${PKGNAME}_$dt"
 BASE_DIR="$workdir/../base"
 EXTR_DIR="$workdir/../extra"
 TOOLS_DIR="$workdir/../tools"
-SDCARD_DIR="$workdir/../sdcard"
-GPS_DIR="$workdir/../sdcard/gpsconf"
+SDCARD_DIR="${EXTR_DIR}/sdcard"
+GPS_DIR="${SDCARD_DIR}/gpsconf"
 
 die () {
     echo -e "\033[1;30m>\033[0;31m>\033[1;31m> ERROR:\033[0m ${@}" && exit 1
@@ -122,16 +122,6 @@ pretty_get () {
         die "pretty_get()"
     fi
     test -f $fname && unpack $fname || pretty_download $target $url
-}
-
-cleanup () {
-    rm -fr $TEMP_DIR
-}
-
-all_cleanup () {
-    cleanup
-    rm -fr $DOWN_DIR
-    rm -fr $OUT_DIR
 }
 
 merge () {
