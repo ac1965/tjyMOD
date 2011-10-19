@@ -1,0 +1,23 @@
+#!/system/bin/sh
+#CPU_VDD_AND_LOWMEMORYKILLER_CONFIG
+#BY_KILLERSLOTH
+
+echo '24576 800' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '61440 800' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '122880 800' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '184320 800' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '201600 800' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '122000 750' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '230400 750' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '307200 750' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '384000 875' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '460800 875' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '537600 850' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '614400 850' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '691200 850' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '768000 875' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '844800 900' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '921600 950' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo '998400 975' > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels
+echo "0,2,4,7,14,15" > /sys/module/lowmemorykiller/parameters/adj
+echo "1536,3072,38400,44800,51200,64000" > /sys/module/lowmemorykiller/parameters/minfree

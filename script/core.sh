@@ -248,7 +248,8 @@ delete("/tmp/clean.sh"); \
 package_extract_dir("sdcard","/sdcard");' \
         META-INF/com/google/android/updater-script
     sed -i '/set_perm(0, 0, 06755, "\/system\/xbin\/tcpdump");/a \
-symlink("/system/etc/init.d/70aufs", "/system/xbin/aufs");' \
+symlink("/system/etc/init.d/70aufs", "/system/xbin/aufs"); \
+symlink("/system/etc/init.d/98governor", "/system/xbin/governor");' \
         META-INF/com/google/android/updater-script
     sed -i '/unmount("\/system");/a \
 unmount("/data"); \

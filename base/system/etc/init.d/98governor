@@ -1,0 +1,60 @@
+#!/system/bin/sh
+# Default governor settings
+
+SELF=`basename $0`
+DEBUG=1
+DEBUGF=/data/local/governor.debug
+
+echod () {
+    [ "$DEBUG" -eq 1 ] && echo $1 | tee -a $DEBUGF || echo $1
+}
+
+abort () {
+    echod $1
+    exit 1
+}
+
+ondemand () {
+    echod "Select Governor: $1"
+    echo "15" > /sys/devices/system/cpu/cpufreq/ondemand/down_differential
+    echo "50" > /sys/devices/system/cpu/cpufreq/ondemand/sampling_down_factor
+    echo "0" > /sys/devices/system/cpu/cpufreq/ondemand/ignore_nice_load
+    echo "85" > /sys/devices/system/cpu/cpufreq/ondemand/up_threshold
+    echo "150" > /sys/devices/system/cpu/cpufreq/ondemand/powersave_bias
+    echo "80000" > /sys/devices/system/cpu/cpufreq/ondemand/sampling_rate
+    echo "1" > /sys/devices/system/cpu/cpufreq/ondemand/io_is_busy
+# Better thread behavior
+    echo "0" > /proc/sys/kernel/sched_compat_yield
+}
+
+help () {
+    echo "$SELF [governor]"
+    echo "    governor: ondemand"
+}
+
+umask 022
+
+case "$SELF" in
+    governor)
+        if [ "$#" -eq 1 ]; then
+            case "$1" in
+                ondemand)
+                    ondemand_setup $1;;
+                *)
+                    echod "$1 not supported";;
+            esac
+        else
+            help
+        fi
+        ;;
+    *)
+        GOVERNOR=`/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
+        case "$GOVERNOR" in
+            ondemand)
+                ondemand $1;;
+            *)
+                echod "$GOVERNOR: not enough setup"
+                ;;
+        esac
+        ;;
+esac
