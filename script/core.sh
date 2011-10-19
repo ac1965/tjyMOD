@@ -2,7 +2,6 @@
 
 PKGNAME=tjyMOD
 VERSION=0.2
-LOCALE=JAPAN # sdcard/gpsconf/..
 
 giturl="git://github.com/ac1965/tjyMOD.git"
 default_kernel="update_2.6.35-BFS-WIP-AUFS_201110161155.zip"
