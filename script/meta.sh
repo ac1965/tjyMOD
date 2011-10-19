@@ -17,6 +17,8 @@ einfo "Android ROM Build v${VERSION} - ${giturl}"
 test "$#" = 0 && usage
 
 prev=
+gps_locale=
+ril_version=
 for option
 do
     if test -n "$prev"; then
@@ -43,6 +45,14 @@ do
             prev=gapps_file;;
         --gapps=*|-gapps=*|-g-*)
             gapps_file=$optarg;;
+        --gps-locale|-gps-locale|-l)
+            prev=gps_locale;;
+        --gps-locale=*|-gps-locale=*|-l=*)
+            gps_locale=$optarg;;
+        --ril-version|-ril|-r)
+            prev=ril_version;;
+        --ril-version=*|-ril=*|-r=*)
+            ril_version=$optarg;;
         --help|-help|-h) usage;;
         -*) die "recognized option: $optarg";;
     esac

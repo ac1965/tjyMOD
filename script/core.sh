@@ -31,7 +31,7 @@ BASE_DIR="$workdir/../base"
 EXTR_DIR="$workdir/../extra"
 TOOLS_DIR="$workdir/../tools"
 SDCARD_DIR="${EXTR_DIR}/sdcard"
-GPS_DIR="${SDCARD_DIR}/gpsconf"
+GPS_DIR="${SDCARD_DIR}/tjyMOD/gpsconf"
 
 die () {
     echo -e "\033[1;30m>\033[0;31m>\033[1;31m> ERROR:\033[0m ${@}" && exit 1
@@ -58,7 +58,7 @@ dexec () {
 usage () {
     cat <<EOF
 Usage:
-   $PKGNAME (-v) all (--kernel KERNEL_FILE) (--baserom ROM_FILE) (--gapps GAPS_FILE)
+   $PKGNAME (-v) all (--kernel KERNEL_FILE) (--baserom ROM_FILE) (--gapps GAPS_FILE) (--gps-locale LOCALE) (--ril-versio VER)
    $PKGNAME (-v) clean
 
 EOF
@@ -252,11 +252,24 @@ delete_recursive("/data/dalvik-cache"); \
 delete_recursive("/data/data/com.android.vending/cache"); \
 unmount("/data");' \
         META-INF/com/google/android/updater-script
-    test -d $GPS_DIR/${LOCALE} && \
-        dexec cp $GPS_DIR/$LOCALE/gps.conf $OUT_DIR/system/etc
+    test -d $GPS_DIR/${gps_locale} && \
+        dexec cp $GPS_DIR/${gps_locale}/gps.conf $OUT_DIR/system/etc
+    for f in rild
+    do
+        test -f ${SDCARD_DIR}/ril/HTC-RIL_${ril_version}/${f} && \
+            dexec cp ${SDCARD_DIR}/ril/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/bin/${f}
+    done
+    for f in libhtc_ril.so libril.so
+    do
+        test -f ${SDCARD_DIR}/ril/HTC-RIL_${ril_version}/${f} && \
+            dexec cp ${SDCARD_DIR}/ril/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/system/lib/${f}
+    done
+	test -d ${SDCARD_DIR} && \
+		dexec cp -a ${SDCARD_DIR} $OUT_DIR/.
     
     echo "BASEROM : $(basename $baserom_file)" > $OUT_DIR/build_${NAME}.txt
     echo "KERNEL  : $(basename $kernel_file)" >> $OUT_DIR/build_${NAME}.txt
+    echo "GAPPS   : $(basename $gapps_file)" >> $OUT_DIR/build_${NAME}.txt
     for f in $CLEAN_LIST
     do
         test -f $f -o -d $f && rm -fr $f
