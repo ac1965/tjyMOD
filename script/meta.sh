@@ -37,9 +37,9 @@ do
             prev=kernel_file;;
         --kernel=*|-kernel=*|-k=*)
             kernel_file=$optarg;;
-        --baserom|-baserom|-b|-r)
+        --baserom|-baserom|-b)
             prev=baserom_file;;
-        --baserom=*|-baserom=*|-b=*|-r=*)
+        --baserom=*|-baserom=*|-b=*)
             baserom_file=$optarg;;
         --gapps|-gapps|-g)
             prev=gapps_file;;

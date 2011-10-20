@@ -269,6 +269,8 @@ unmount("/data");' \
     echo "BASEROM : $(basename $baserom_file)" > $OUT_DIR/build_${NAME}.txt
     echo "KERNEL  : $(basename $kernel_file)" >> $OUT_DIR/build_${NAME}.txt
     echo "GAPPS   : $(basename $gapps_file)" >> $OUT_DIR/build_${NAME}.txt
+    echo "RIL     : ${ril_version}" >> $OUT_DIR/build_${NAME}.txt
+    echo "GPS     : ${gps_locale}" >> $OUT_DIR/build_${NAME}.txt
     for f in $CLEAN_LIST
     do
         test -f $f -o -d $f && rm -fr $f
