@@ -138,7 +138,7 @@ ril () {
 	DIR=${PRESET_PATH}/ril/$DN
 	printf "RIL before patch: "
 	getprop | grep RIL | cut -d'[' -f3 | cut -d ']' -f1
-	test -z "$DZ" && die "Error: Please specify RIL"
+	test -z "$DN" && die "Error: Please specify RIL"
 	if [ -d "$DIR" ]; then
 		Remount "rw"
 		cp -r $DIR/* /
