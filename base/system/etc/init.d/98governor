@@ -4,6 +4,7 @@
 SELF=`basename $0`
 DEBUG=1
 DEBUGF=/data/local/governor.debug
+CPUFREQ="/sys/devices/system/cpu/cpufreq"
 
 echod () {
     [ "$DEBUG" -eq 1 ] && echo $1 | tee -a $DEBUGF || echo $1
@@ -14,17 +15,32 @@ abort () {
     exit 1
 }
 
-ondemand () {
+ondemand_setup () {
+    CPUFREQ="${CPUFREQ}/${1}"
     echod "Select Governor: $1"
-    echo "15" > /sys/devices/system/cpu/cpufreq/ondemand/down_differential
-    echo "50" > /sys/devices/system/cpu/cpufreq/ondemand/sampling_down_factor
-    echo "0" > /sys/devices/system/cpu/cpufreq/ondemand/ignore_nice_load
-    echo "85" > /sys/devices/system/cpu/cpufreq/ondemand/up_threshold
-    echo "150" > /sys/devices/system/cpu/cpufreq/ondemand/powersave_bias
-    echo "80000" > /sys/devices/system/cpu/cpufreq/ondemand/sampling_rate
-    echo "1" > /sys/devices/system/cpu/cpufreq/ondemand/io_is_busy
+    for f in down_differential sampling_down_factor ignore_nice_load up_threshold \
+    powersave_bias sampling_rate io_is_busy
+    do
+	echod " - current $f : $(cat ${CPUFREQ}/${f})"
+    done
+    echod " - current sched_compat_yield : $(cat /proc/sys/kernel/sched_compat_yield)"
+
+    echo "15" >    ${CPUFREQ}/down_differential
+    echo "50" >    ${CPUFREQ}/sampling_down_factor
+    echo "0" >     ${CPUFREQ}/ignore_nice_load
+    echo "85" >    ${CPUFREQ}/up_threshold
+    echo "150" >   ${CPUFREQ}/powersave_bias
+    echo "80000" > ${CPUFREQ}/sampling_rate
+    echo "1" >     ${CPUFREQ}/io_is_busy
 # Better thread behavior
     echo "0" > /proc/sys/kernel/sched_compat_yield
+
+    for f in down_differential sampling_down_factor ignore_nice_load up_threshold \
+	powersave_bias sampling_rate io_is_busy
+    do
+	echod " = modify  $f : $(cat ${CPUFREQ}/${f})"
+    done
+    echod " = modify  sched_compat_yield : $(cat /proc/sys/kernel/sched_compat_yield)"
 }
 
 help () {
@@ -33,6 +49,8 @@ help () {
 }
 
 umask 022
+GOVERNOR=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
+test -f $DEBUGF && rm -f $DEBUGF
 
 case "$SELF" in
     governor)
@@ -48,7 +66,6 @@ case "$SELF" in
         fi
         ;;
     *)
-        GOVERNOR=`/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
         case "$GOVERNOR" in
             ondemand)
                 ondemand $1;;
