@@ -6,7 +6,6 @@ cd ${wdir}/data/app
 for f in *.apk
 do
 	name=$(basename $f .apk)
-	echo 'rm -f /data/app/'$name'-*.apk'
+	echo 'rm /data/app/'$name'*.apk'
 done > ${wdir}/list
 cd - >/dev/null
-echo >> 'rm -f /system/lib/modules/*'
