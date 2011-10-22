@@ -30,7 +30,9 @@ BASE_DIR="$workdir/../base"
 EXTR_DIR="$workdir/../extra"
 TOOLS_DIR="$workdir/../tools"
 SDCARD_DIR="${EXTR_DIR}/sdcard"
-GPS_DIR="${SDCARD_DIR}/tjyMOD/gpsconf"
+SDMOD_DIR="${SDCARD_DIR}/tjyMOD"
+GPS_DIR="${SDMOD_DIR}/gpsconf"
+RIL_DIR="${SDMOD_DIR}/ril"
 
 die () {
     echo -e "\033[1;30m>\033[0;31m>\033[1;31m> ERROR:\033[0m ${@}" && exit 1
@@ -251,17 +253,24 @@ delete_recursive("/data/dalvik-cache"); \
 delete_recursive("/data/data/com.android.vending/cache"); \
 unmount("/data");' \
         META-INF/com/google/android/updater-script
+    gps_locale="$(echo $gps_locale | tr '[a-z]' '[A-Z]')"
+    test -d $GPS_DIR/${gps_locale} && \
+        echo -ne " Locale[$gps_locale]"
     test -d $GPS_DIR/${gps_locale} && \
         dexec cp $GPS_DIR/${gps_locale}/gps.conf $OUT_DIR/system/etc
+    
+    test -d ${RIL_DIR}/HTC-RIL_${ril_version} && \
+        echo -ne " RIL[$ril_version]"
+
     for f in rild
     do
-        test -f ${SDCARD_DIR}/ril/HTC-RIL_${ril_version}/${f} && \
-            dexec cp ${SDCARD_DIR}/ril/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/bin/${f}
+        test -f ${RIL_DIR}/HTC-RIL_${ril_version}/${f} && \
+            dexec cp ${RIL_DIR}/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/bin/${f}
     done
     for f in libhtc_ril.so libril.so
     do
-        test -f ${SDCARD_DIR}/ril/HTC-RIL_${ril_version}/${f} && \
-            dexec cp ${SDCARD_DIR}/ril/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/system/lib/${f}
+        test -f ${RIL_DIR}/HTC-RIL_${ril_version}/${f} && \
+            dexec cp ${RIL_DIR}/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/system/lib/${f}
     done
 	test -d ${SDCARD_DIR} && \
 		dexec cp -a ${SDCARD_DIR} $OUT_DIR/.
