@@ -34,20 +34,31 @@ SDMOD_DIR="${SDCARD_DIR}/tjyMOD"
 GPS_DIR="${SDMOD_DIR}/gpsconf"
 RIL_DIR="${SDMOD_DIR}/ril"
 
+# color escape
+NORMAL="\033[0m"
+GREY="\033[1;30m"
+RED_2="\033[0;36m"
+RED_1="\033[0;31m"
+RED="\033[1;31m"
+BLUE_1="\033[0;36m"
+BLUE="\033[1;36m"
+YELLOW_1="\033[0;33m"
+YELLOW="\033[1;33m"
+
 die () {
-    echo -e "\033[1;30m>\033[0;31m>\033[1;31m> ERROR:\033[0m ${@}" && exit 1
+    echo -e "${GREY}>${RED_1}>${RED}> ERROR:${NORMAL} ${@}" && exit 1
 }
 
 einfo () {
-    echo -ne "\033[1;30m>\033[0;36m>\033[1;36m> \033[0m${@}\n"
+    echo -ne "${GREY}>${BLUE-1}>${BLUE}> ${NORMAL}${@}\n"
 }
 
 ewarn () {
-    echo -ne "\033[1;30m>\033[0;33m>\033[1;33m> \033[0m${@}\n"
+    echo -ne "${GREY}>${YELLOW_1}>${YELLOW}> ${NORMAL}${@}\n"
 }
 
 ewarn_n () {
-    echo -ne "\033[1;30m>\033[0;33m>\033[1;33m> \033[0m${@} "
+    echo -ne "${GREY}>${YELLOW_1}>${YELLOW}> ${NORMAL}${@} "
 }
 
 dexec () {
@@ -106,7 +117,7 @@ pretty_download () {
 
 pretty_get () {
     arg=$1
-    which=$2 #
+    which=$2
     
     fname=$(readlink -f $arg)
     test x"" = x"$fname" && die "can not get $arg"
@@ -131,13 +142,13 @@ merge () {
 
     for t in $target
     do
-        ewarn_n "Reconstrunction: \033[0;31m$(basename $t)\033[0m \033[1;30m[$dirs]\033[0m\n * "
+        ewarn_n "Reconstrunction: ${RED_1}$(basename $t)${NORMAL} ${GREY}[$dirs]${NORMAL}\n * "
         (
             cd $t
             for d in $dirs
             do
                 if test -d $d; then
-                    echo -ne "\033[0;36m$(basename $d)\033[0m "
+                    echo -ne "${RED_2}$(basename $d)${NORMAL} "
                     tar cf - $d | (cd $OUT_DIR; tar xfv -) >> $LOG 2>&1
                 fi
             done
@@ -163,7 +174,7 @@ pretty_fix () {
         test -f $f && (
             name=$(basename $f .${suffix})
             tdir=$(dirname $f)
-            echo -ne "\033[0;36m$name\033[0m "
+            echo -ne "${RED_2}$name${NORMAL} "
             if [ x"$suffix" = x"prepend" ]; then
                 cat $f ${tdir}/${name} > ${name}.new
             else
@@ -181,7 +192,7 @@ pretty_extra () {
     for d in $DIRS
     do
         if test -d $d; then
-            echo -ne "\033[0;36m$(basename $d)\033[0m "
+            echo -ne "${RED_2}$(basename $d)${NORMAL} "
             tar cf - $d | (cd $OUT_DIR; tar xvf -) >> $LOG 2>&1
         fi
     done
@@ -223,7 +234,7 @@ zipped_sign () {
     ewarn_n "BUILD ROM: $(basename $OUTF)\n * "
     cd $OUT_DIR
     test -f $ZIPF && rm -f $ZIPF
-    echo -ne "\033[0;36mcustomize"
+    echo -ne "customize"
     sed -i 's/DD_VERSION/'${PKGNAME}-v${VERSION}_${dt}'/' system/build.prop
     cat $ART_DIR/logo.txt META-INF/com/google/android/updater-script > _u
     mv _u META-INF/com/google/android/updater-script
@@ -255,12 +266,12 @@ unmount("/data");' \
         META-INF/com/google/android/updater-script
     gps_locale="$(echo $gps_locale | tr '[a-z]' '[A-Z]')"
     test -d $GPS_DIR/${gps_locale} && \
-        echo -ne " Locale[$gps_locale]"
+        echo -ne " Locale[${RED_2}$gps_locale${NORMAL}]"
     test -d $GPS_DIR/${gps_locale} && \
         dexec cp $GPS_DIR/${gps_locale}/gps.conf $OUT_DIR/system/etc
     
     test -d ${RIL_DIR}/HTC-RIL_${ril_version} && \
-        echo -ne " RIL[$ril_version]"
+        echo -ne " RIL[${RED_2}$ril_version]${NORMAL}]"
 
     for f in rild
     do
@@ -286,7 +297,7 @@ unmount("/data");' \
     done
     echo -ne " => zipped"
     dexec zip -r9 $ZIPF . >> $LOG 2>&1
-    echo -ne " => sign-zipped\033[0m"
+    echo -ne " => sign-zipped${NORMAL}"
     dexec java -jar $TOOLS_DIR/signapk.jar $TOOLS_DIR/certification.pem $TOOLS_DIR/key.pk8 \
         $ZIPF $OUTF && rm -f $ZIPF
     echo -ne "\n"
