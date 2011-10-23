@@ -1,8 +1,9 @@
 #! /usr/bin/env bash
 
 PKGNAME=tjyMOD
-VERSION=0.21
+VERSION=0.3
 
+# I hope to upload sit for my KANG, kernel and ROM.
 giturl="git://github.com/ac1965/tjyMOD.git"
 default_kernel="update_2.6.35-BFS-WIP-AUFS_201110161155.zip"
 default_baserom="cm_ace_full-227.zip"
@@ -234,25 +235,60 @@ zipped_sign () {
     ewarn_n "BUILD ROM: $(basename $OUTF)\n * "
     cd $OUT_DIR
     test -f $ZIPF && rm -f $ZIPF
-    echo -ne "customize"
+
+    echo -ne "customize::"
+    echo -ne " build.prop"
     sed -i 's/DD_VERSION/'${PKGNAME}-v${VERSION}_${dt}'/' system/build.prop
+
     cat $ART_DIR/logo.txt META-INF/com/google/android/updater-script > _u
-    mv _u META-INF/com/google/android/updater-script
+    sed -i 's/DD_VERSION/'${PKGNAME}-v${VERSION}_${dt}'/' _u
+    sed -i 's/DD_BASEROM/'$(basename ${baserom_file})'/' _u
+    sed -i 's/DD_KERNEL/'$(basename ${kernel_file})'/' _u
+    sed -i 's/DD_GAPPS/'$(basename ${gapps_file})'/' _u
+
+    # RIL selected    
+    if [ -d ${RIL_DIR}/HTC-RIL_${ril_version} ]; then
+        echo -ne " RIL[${RED_2}$ril_version]${NORMAL}]"
+        sed -i 's/RIL: DEFAULT/RIL: '$ril_version'/' _u
+        for f in rild
+        do
+            test -f ${RIL_DIR}/HTC-RIL_${ril_version}/${f} && \
+                dexec cp ${RIL_DIR}/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/bin/${f}
+        done
+        for f in libhtc_ril.so libril.so
+        do
+            test -f ${RIL_DIR}/HTC-RIL_${ril_version}/${f} && \
+            dexec cp ${RIL_DIR}/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/system/lib/${f}
+        done
+    fi
+
+    # Locale selected: /system/etc/gps.conf copy each countries
+    gps_locale="$(echo $gps_locale | tr '[a-z]' '[A-Z]')"
+    if [ -d $GPS_DIR/${gps_locale} ]; then
+        echo -ne " Locale[${RED_2}$gps_locale${NORMAL}]"
+        sed -i 's/GPS: DEFAULT/GPS: '$gps_locale'/' _u
+        dexec cp $GPS_DIR/${gps_locale}/gps.conf $OUT_DIR/system/etc
+    fi
+        
+	test -d ${SDCARD_DIR} && \
+		dexec cp -a ${SDCARD_DIR} $OUT_DIR/.
+
+    echo -ne " updater-script"
     sed -i '/mount("ext4", "EMMC", "\/dev\/block\/mmcblk0p25",/a \
-mount("ext4", "EMMC", "/dev/block/mmcblk0p26", "/data");' \
-        META-INF/com/google/android/updater-script
+mount("ext4", "EMMC", "/dev/block/mmcblk0p26", "/data"); \
+' _u
     sed -i '/package_extract_dir("system",/a \
 package_extract_dir("data","/data"); \
 package_extract_dir("setup", "/tmp"); \
 set_perm(0, 0, 0755, "/tmp/clean.sh"); \
 run_program("/tmp/clean.sh"); \
 delete("/tmp/clean.sh"); \
-package_extract_dir("sdcard","/sdcard");' \
-        META-INF/com/google/android/updater-script
+package_extract_dir("sdcard","/sdcard"); \
+' _u
     sed -i '/set_perm(0, 0, 06755, "\/system\/xbin\/tcpdump");/a \
 symlink("/system/etc/init.d/70aufs", "/system/xbin/aufs"); \
-symlink("/system/etc/init.d/98governor", "/system/xbin/governor");' \
-        META-INF/com/google/android/updater-script
+symlink("/system/etc/init.d/98governor", "/system/xbin/governor"); \
+' _u
     sed -i '/unmount("\/system");/a \
 unmount("/data"); \
 ui_print("* Wipe /cache"); \
@@ -262,29 +298,9 @@ ui_print("* Wipe dalvik-cache"); \
 mount("ext4", "EMMC", "/dev/block/mmcblk0p26", "/data"); \
 delete_recursive("/data/dalvik-cache"); \
 delete_recursive("/data/data/com.android.vending/cache"); \
-unmount("/data");' \
-        META-INF/com/google/android/updater-script
-    gps_locale="$(echo $gps_locale | tr '[a-z]' '[A-Z]')"
-    test -d $GPS_DIR/${gps_locale} && \
-        echo -ne " Locale[${RED_2}$gps_locale${NORMAL}]"
-    test -d $GPS_DIR/${gps_locale} && \
-        dexec cp $GPS_DIR/${gps_locale}/gps.conf $OUT_DIR/system/etc
-    
-    test -d ${RIL_DIR}/HTC-RIL_${ril_version} && \
-        echo -ne " RIL[${RED_2}$ril_version]${NORMAL}]"
-
-    for f in rild
-    do
-        test -f ${RIL_DIR}/HTC-RIL_${ril_version}/${f} && \
-            dexec cp ${RIL_DIR}/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/bin/${f}
-    done
-    for f in libhtc_ril.so libril.so
-    do
-        test -f ${RIL_DIR}/HTC-RIL_${ril_version}/${f} && \
-            dexec cp ${RIL_DIR}/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/system/lib/${f}
-    done
-	test -d ${SDCARD_DIR} && \
-		dexec cp -a ${SDCARD_DIR} $OUT_DIR/.
+unmount("/data"); \
+' _u
+    mv _u META-INF/com/google/android/updater-script
     
     echo "BASEROM : $(basename $baserom_file)" > $OUT_DIR/build_${NAME}.txt
     echo "KERNEL  : $(basename $kernel_file)" >> $OUT_DIR/build_${NAME}.txt
