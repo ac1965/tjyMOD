@@ -3,7 +3,7 @@
 PKGNAME=tjyMOD
 VERSION=0.3
 
-# I hope to upload sit for my KANG, kernel and ROM.
+# I hope to put site my KANG, kernel and ROM.
 giturl="git://github.com/ac1965/tjyMOD.git"
 default_kernel="update_2.6.35-BFS-WIP-AUFS_201110161155.zip"
 default_baserom="cm_ace_full-227.zip"
