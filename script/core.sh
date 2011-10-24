@@ -93,7 +93,7 @@ download () {
     test $verbose = 0 && quiet="-q" || quiet=""
 
     ewarn "Download from $url"
-    dexec wget $url -O $DOWN_DIR/$target $quiet
+    dexec wget $url -O $DOWN_DIR/$target $quiet >/dev/null 2>&1 || die "Can't download $target from $url"
     md5sum $DOWN_DIR/$target > $DOWN_DIR/${target}.sum
 }
 
