@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
 set -e
+export LANG=C
 
 workdir="$(readlink -f $(dirname $0))"
 dt=$(date +%Y%m%d%H%M)
@@ -54,6 +55,8 @@ do
         --ril-version=*|-ril=*|-r=*)
             ril_version=$optarg;;
         --help|-help|-h) usage;;
+        --verbose|-verbose|-v)
+            LOG=/dev/sdtout; verbose=1;;
         -*) die "recognized option: $optarg";;
     esac
 
@@ -79,12 +82,9 @@ test -f $logf && mv $logf $logf.prev
 for option
 do
     case "$option" in
-        --verbose|-verbose|-v)
-            LOG=/dev/stdout
-            verbose=1;;
         all)
             einfo "Automatic Build ROM"
-            echo -e "\t\033[1;30mLOG:$LOG\033[0m"
+            echo -e "\t${FIRST_COLOR}LOG:$LOG${NORMAL}"
             remove $TEMP_DIR $OUT_DIR && \
                 pretty_get $baserom_file "baserom" && \
                 pretty_get $kernel_file "kernel" && \
