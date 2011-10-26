@@ -1,3 +1,4 @@
+rm /system/lib/modules/*
 rm /data/app/CallRecorder*.apk
 rm /data/app/com.adobe.reader-*.apk
 rm /data/app/com.antivirus-*.apk
