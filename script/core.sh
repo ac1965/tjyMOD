@@ -5,12 +5,10 @@ VERSION=0.3
 
 # I hope to put site my KANG, kernel and ROM.
 giturl="git://github.com/ac1965/tjyMOD.git"
-default_kernel="update_2.6.35-BFS-WIP-AUFS_201110161155.zip"
-default_baserom="cm_ace_full-227.zip"
+default_url="http://tjy.sakura.ne.jp/pu/up/android"
+default_kernel="update_2.6.35-BFS-WIP-AUFS_201110241151.zip"
+default_baserom="update-cm-7.1.0-DesireHD-KANG_201110221353.signed.zip"
 default_gapps="gapps-gb-20110930-237-signed.zip"
-KERNELBASE=https://dl.dropbox.com/s/2lar8mywh2u9ctk  # lordmodUEv7.2-CFS-b13.zip?dl=1
-ROMBASE=http://download.cyanogenmod.com/get          # cm_ace_full-XXX.zip
-GAPPS_URL=http://goo-inside.me/gapps                 # gapps
 
 DIRS="system data setup kernel META-INF"
 BASEROM_DIRS="system data META-INF"
@@ -37,29 +35,29 @@ RIL_DIR="${SDMOD_DIR}/ril"
 
 # color escape
 NORMAL="\033[0m"
-GREY="\033[1;30m"
-RED_2="\033[0;36m"
-RED_1="\033[0;31m"
-RED="\033[1;31m"
-BLUE_1="\033[0;36m"
-BLUE="\033[1;36m"
-YELLOW_1="\033[0;33m"
-YELLOW="\033[1;33m"
+FIRST_COLOR="\033[1;30m"
+DIE_2ND_COLOR="\033[0;36m"
+DIE_3RT_COLOR="\033[0;31m"
+REMARK_COLOR="\033[1;31m"
+INFO_2ND_COLOR="\033[0;36m"
+INFO_3RD_COLOR="\033[1;36m"
+WARN_2ND_COLOR="\033[0;33m"
+WARN_3RD_COLOR="\033[1;33m"
 
 die () {
-    echo -e "${GREY}>${RED_1}>${RED}> ERROR:${NORMAL} ${@}" && exit 1
+    echo -e "${FIRST_COLOR}>${DIE_2ND_COLOR}>${DIE_3RD_COLOR}> ERROR:${NORMAL} ${@}" && exit 1
 }
 
 einfo () {
-    echo -ne "${GREY}>${BLUE-1}>${BLUE}> ${NORMAL}${@}\n"
+    echo -ne "${FIRST_COLOR}>${INFO_2ND_COLOR}>${INFO_3RD_COLOR}> ${NORMAL}${@}\n"
 }
 
 ewarn () {
-    echo -ne "${GREY}>${YELLOW_1}>${YELLOW}> ${NORMAL}${@}\n"
+    echo -ne "${FIRST_COLOR}>${WARN_2ND_COLOR}>${WARN_3RD_COLOR}> ${NORMAL}${@}\n"
 }
 
 ewarn_n () {
-    echo -ne "${GREY}>${YELLOW_1}>${YELLOW}> ${NORMAL}${@} "
+    echo -ne "${FIRST_COLOR}>${WARN_2ND_COLOR}>${WARN_3RD_COLOR}> ${NORMAL}${@}\n"
 }
 
 dexec () {
@@ -124,15 +122,7 @@ pretty_get () {
     target=$(basename $fname)
     
     ewarn "Get $which: $target"
-    if [ $which = "kernel" ]; then
-        url="$KERNELBASE/${target}?dl=1"
-    elif [ $which = "baserom" ]; then
-        url="$ROMBASE/$target"
-    elif [ $which = "gapps" ]; then
-        url="$GAPPS_URL/$target"
-    else
-        die "pretty_get()"
-    fi
+    url="${DEFAULT_URL}/${target}"
     test -f $fname && unpack $fname || pretty_download $target $url
 }
 
@@ -142,13 +132,13 @@ merge () {
 
     for t in $target
     do
-        ewarn_n "Reconstrunction: ${RED_1}$(basename $t)${NORMAL} ${GREY}[$dirs]${NORMAL}\n * "
+        ewarn_n "Reconstrunction: ${REMARK}$(basename $t)${NORMAL} ${FIRST_COLOR}[$dirs]${NORMAL}\n * "
         (
             cd $t
             for d in $dirs
             do
                 if test -d $d; then
-                    echo -ne "${RED_2}$(basename $d)${NORMAL} "
+                    echo -ne "${REMARK}$(basename $d)${NORMAL} "
                     tar cf - $d | (cd $OUT_DIR; tar xfv -) >> $LOG 2>&1
                 fi
             done
@@ -174,7 +164,7 @@ pretty_fix () {
         test -f $f && (
             name=$(basename $f .${suffix})
             tdir=$(dirname $f)
-            echo -ne "${RED_2}$name${NORMAL} "
+            echo -ne "${REMARK}$name${NORMAL} "
             if [ x"$suffix" = x"prepend" ]; then
                 cat $f ${tdir}/${name} > ${name}.new
             else
@@ -188,11 +178,11 @@ pretty_fix () {
 }
 
 pretty_extra () {
-	cd $1
+    cd $1
     for d in $DIRS
     do
         if test -d $d; then
-            echo -ne "${RED_2}$(basename $d)${NORMAL} "
+            echo -ne "${REMARK}$(basename $d)${NORMAL} "
             tar cf - $d | (cd $OUT_DIR; tar xvf -) >> $LOG 2>&1
         fi
     done
@@ -247,7 +237,7 @@ zipped_sign () {
 
     # RIL selected    
     if [ -d ${RIL_DIR}/HTC-RIL_${ril_version} ]; then
-        echo -ne " RIL[${RED_2}$ril_version]${NORMAL}]"
+        echo -ne " RIL[${REMARK}$ril_version]${NORMAL}]"
         sed -i 's/RIL: DEFAULT/RIL: '$ril_version'/' _u
         for f in rild
         do
@@ -264,7 +254,7 @@ zipped_sign () {
     # Locale selected: /system/etc/gps.conf copy each countries
     gps_locale="$(echo $gps_locale | tr '[a-z]' '[A-Z]')"
     if [ -d $GPS_DIR/${gps_locale} ]; then
-        echo -ne " Locale[${RED_2}$gps_locale${NORMAL}]"
+        echo -ne " Locale[${REMARK}$gps_locale${NORMAL}]"
         sed -i 's/GPS: DEFAULT/GPS: '$gps_locale'/' _u
         dexec cp $GPS_DIR/${gps_locale}/gps.conf $OUT_DIR/system/etc
     fi
@@ -299,6 +289,7 @@ delete_recursive("/data/dalvik-cache"); \
 delete_recursive("/data/data/com.android.vending/cache"); \
 unmount("/data"); \
 ' _u
+
     mv _u META-INF/com/google/android/updater-script
     
     echo "BASEROM : $(basename $baserom_file)" > $OUT_DIR/build_${NAME}.txt
