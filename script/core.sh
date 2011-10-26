@@ -114,13 +114,9 @@ pretty_download () {
 }
 
 pretty_get () {
-    arg=$1
-    which=$2
-    
-    fname=$(readlink -f $arg)
-    test x"" = x"$fname" && die "can not get $arg"
-    target=$(basename $fname)
-    
+    fname=$1
+
+    target=$(basename $fname)   
     ewarn "Get $which: $target"
     url="${DEFAULT_URL}/${target}"
     test -f $fname && unpack $fname || pretty_download $target $url
