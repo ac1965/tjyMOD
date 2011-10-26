@@ -2,10 +2,11 @@
 
 wdir=$(readlink -f $(dirname $0))
 
+echo 'rm /system/lib/modules/*' > ${wdir}/list
 cd ${wdir}/data/app
 for f in *.apk
 do
 	name=$(basename $f .apk)
 	echo 'rm /data/app/'$name'*.apk'
-done > ${wdir}/list
+done >> ${wdir}/list
 cd - >/dev/null
