@@ -86,14 +86,14 @@ do
             einfo "Automatic Build ROM"
             echo -e "\t${FIRST_COLOR}LOG:$LOG${NORMAL}"
             remove $TEMP_DIR $OUT_DIR && \
-                pretty_get $baserom_file && \
-                pretty_get $kernel_file && \
-                pretty_get $gapps_file && \
+                pretty_get $(readlink -f $baserom_file) && \
+                pretty_get $(readlink -f $kernel_file) && \
+                pretty_get $(readlink -f $gapps_file) && \
                 build $baserom_file $kernel_file $gapps_file
             ;;
         clean)
             einfo "Cleaning"
-            remove $TEMP_DIR $OUT_DIR
+            remove $TEMP_DIR $O
             ;;
     esac
 done
