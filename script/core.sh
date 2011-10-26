@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 PKGNAME=tjyMOD
-VERSION=0.3
+VERSION=0.31
 
 # I hope to put site my KANG, kernel and ROM.
 giturl="git://github.com/ac1965/tjyMOD.git"
@@ -57,7 +57,7 @@ ewarn () {
 }
 
 ewarn_n () {
-    echo -ne "${FIRST_COLOR}>${WARN_2ND_COLOR}>${WARN_3RD_COLOR}> ${NORMAL}${@}\n"
+    echo -ne "${FIRST_COLOR}>${WARN_2ND_COLOR}>${WARN_3RD_COLOR}> ${NORMAL}${@}"
 }
 
 dexec () {
@@ -118,7 +118,7 @@ pretty_get () {
 
     target=$(basename $fname)   
     ewarn "Get $which: $target"
-    url="${DEFAULT_URL}/${target}"
+    url="${default_url}/${target}"
     test -f $fname && unpack $fname || pretty_download $target $url
 }
 
@@ -128,13 +128,13 @@ merge () {
 
     for t in $target
     do
-        ewarn_n "Reconstrunction: ${REMARK}$(basename $t)${NORMAL} ${FIRST_COLOR}[$dirs]${NORMAL}\n * "
+        ewarn_n "Reconstrunction: ${REMARK_COLOR}$(basename $t)${NORMAL} ${FIRST_COLOR}[$dirs]${NORMAL}\n * "
         (
             cd $t
             for d in $dirs
             do
                 if test -d $d; then
-                    echo -ne "${REMARK}$(basename $d)${NORMAL} "
+                    echo -ne "${REMARK_COLOR}$(basename $d)${NORMAL} "
                     tar cf - $d | (cd $OUT_DIR; tar xfv -) >> $LOG 2>&1
                 fi
             done
@@ -160,7 +160,7 @@ pretty_fix () {
         test -f $f && (
             name=$(basename $f .${suffix})
             tdir=$(dirname $f)
-            echo -ne "${REMARK}$name${NORMAL} "
+            echo -ne "${REMARK_COLOR}$name${NORMAL} "
             if [ x"$suffix" = x"prepend" ]; then
                 cat $f ${tdir}/${name} > ${name}.new
             else
@@ -178,7 +178,7 @@ pretty_extra () {
     for d in $DIRS
     do
         if test -d $d; then
-            echo -ne "${REMARK}$(basename $d)${NORMAL} "
+            echo -ne "${REMARK_COLOR}$(basename $d)${NORMAL} "
             tar cf - $d | (cd $OUT_DIR; tar xvf -) >> $LOG 2>&1
         fi
     done
@@ -233,7 +233,7 @@ zipped_sign () {
 
     # RIL selected    
     if [ -d ${RIL_DIR}/HTC-RIL_${ril_version} ]; then
-        echo -ne " RIL[${REMARK}$ril_version]${NORMAL}]"
+        echo -ne " RIL[${REMARK_COLOR}$ril_version]${NORMAL}]"
         sed -i 's/RIL: DEFAULT/RIL: '$ril_version'/' _u
         for f in rild
         do
@@ -248,13 +248,14 @@ zipped_sign () {
     fi
 
     # Locale selected: /system/etc/gps.conf copy each countries
-    gps_locale="$(echo $gps_locale | tr '[a-z]' '[A-Z]')"
-    if [ -d $GPS_DIR/${gps_locale} ]; then
-        echo -ne " Locale[${REMARK}$gps_locale${NORMAL}]"
-        sed -i 's/GPS: DEFAULT/GPS: '$gps_locale'/' _u
-        dexec cp $GPS_DIR/${gps_locale}/gps.conf $OUT_DIR/system/etc
-    fi
-        
+    test -z $gps_locale || (
+        gps_locale="$(echo $gps_locale | tr '[a-z]' '[A-Z]')"
+        if [ -d $GPS_DIR/${gps_locale} ]; then
+            echo -ne " Locale[${REMARK_COLOR}$gps_locale${NORMAL}]"
+            sed -i 's/GPS: DEFAULT/GPS: '$gps_locale'/' _u
+            dexec cp $GPS_DIR/${gps_locale}/gps.conf $OUT_DIR/system/etc
+        fi
+    )
 	test -d ${SDCARD_DIR} && \
 		dexec cp -a ${SDCARD_DIR} $OUT_DIR/.
 
