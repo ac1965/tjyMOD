@@ -86,9 +86,9 @@ do
             einfo "Automatic Build ROM"
             echo -e "\t${FIRST_COLOR}LOG:$LOG${NORMAL}"
             remove $TEMP_DIR $OUT_DIR && \
-                pretty_get $baserom_file "baserom" && \
-                pretty_get $kernel_file "kernel" && \
-                pretty_get $gapps_file "gapps" && \
+                pretty_get $baserom_file && \
+                pretty_get $kernel_file && \
+                pretty_get $gapps_file && \
                 build $baserom_file $kernel_file $gapps_file
             ;;
         clean)
