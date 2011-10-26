@@ -23,11 +23,13 @@ dexec () {
 }
 
 usage () {
+    rils=$(ls ${RIL_DIR} | tr '\n' ' ' | sed 's/HTC-RIL_//g')
     cat <<EOF
 Usage:
    $PKGNAME (-v) all (--kernel KERNEL_FILE) (--baserom ROM_FILE) (--gapps GAPS_FILE) (--gps-locale LOCALE) (--ril-versio VER)
    $PKGNAME (-v) clean
 
+       RILS: ${rils}
 EOF
     exit
 }
@@ -46,13 +48,15 @@ download () {
     test -d $DOWN_DIR || mkdir -p $DOWN_DIR
 
     ewarn "Download from $url"
-    dexec wget $url -O $DOWN_DIR/$target >/dev/null 2>&1 || die "Can't download $target from $url"
+    dexec wget $url -O $DOWN_DIR/$target >/dev/null 2>&1
     md5sum $DOWN_DIR/$target > $DOWN_DIR/${target}.sum
 }
+
 
 pretty_download () {
     target=$1
     url=$2
+	req_unpack=$3
 
     if [ -f $DOWN_DIR/${target}.sum ]; then
         cd $DOWN_DIR
@@ -65,8 +69,27 @@ pretty_download () {
     else
         download $url $target
     fi
-    unpack $DOWN_DIR/$target
+    test x"${req_unpack}" = x"no" || unpack $DOWN_DIR/$target
 
+}
+
+download_apps () {
+    which=$1
+    
+    u="${default_url}/${which}"
+    list="${u}/${which}.list"
+    ewarn "Get: ${which}.list"
+    dexec wget $list -O $DOWN_DIR/${which}.list >/dev/null 2>&1 || die "Can't download ${list}"
+    for apps in $(cat ${DOWN_DIR}/${which}.list)
+    do
+        pretty_download ${apps} ${u}/${apps} "no"
+        ewarn "COPY:${which}:${apps}"
+        if [ "${which}" = "base" ]; then
+            cp ${DOWN_DIR}/${apps} ${OUT_DIR}/system/app/
+        elif [ "${which}" = "extra" ]; then
+            cp ${DOWN_DIR}/${apps} ${OUT_DIR}/data/app/
+        fi
+    done
 }
 
 pretty_get () {
@@ -277,7 +300,12 @@ build () {
     mkbootimg $TEMP_DIR/$baserom/boot.img $TEMP_DIR/$kernel/kernel/zImage $OUT_DIR/boot.img
     merge $TEMP_DIR/$gapps "$GAPPS_DIRS"
     remove $TEMP_DIR/$baserom $TEMP_DIR/$kernel $TEMP_DIR/$gapps
-
     mix_extra
+
+    for t in base extra
+	do
+    	download_apps $t
+	done
+
     zipped_sign
 }

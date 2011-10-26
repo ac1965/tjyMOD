@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 PKGNAME=tjyMOD
-VERSION=0.31
+VERSION=0.33
 
 # I hope to put site my KANG, kernel and ROM.
 giturl="git://github.com/ac1965/tjyMOD.git"
@@ -9,6 +9,9 @@ default_url="http://tjy.sakura.ne.jp/pu/up/android"
 default_kernel="update_2.6.35-BFS-WIP-AUFS_201110241151.zip"
 default_baserom="update-cm-7.1.0-DesireHD-KANG_201110221353.signed.zip"
 default_gapps="gapps-gb-20110930-237-signed.zip"
+
+base_list="http://tjy.sakura.ne.jp/pu/up/android/base.list"
+extra_list="http://tjy.sakura.ne.jp/pu/up/android/extra.list"
 
 DIRS="system data setup kernel META-INF"
 BASEROM_DIRS="system data META-INF"
