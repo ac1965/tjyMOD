@@ -2,11 +2,15 @@
 
 wdir=$(readlink -f $(dirname $0))
 
-echo 'rm /system/lib/modules/*' > ${wdir}/list
-cd ${wdir}/data/app
-for f in *.apk
+echo 'rm /system/lib/modules/*' > ${wdir}/setup/clean.sh
+for f in $(cat system.apps)
+do
+	name=$(basename $f .apk)
+	echo 'rm /system/app/'$name'*.apk'
+done >> ${wdir}/setup/clean.sh
+
+for f in $(cat extra.apps)
 do
 	name=$(basename $f .apk)
 	echo 'rm /data/app/'$name'*.apk'
-done >> ${wdir}/list
-cd - >/dev/null
+done >> ${wdir}/setup/clean.sh
