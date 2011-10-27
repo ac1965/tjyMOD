@@ -1,6 +1,10 @@
 #! /usr/bin/env bash
 
-test x"${PKGNAME}" = x"tjyMOD" || . setting.sh # for debugging
+if test x"${PKGNAME}" != x"tjyMOD"; then
+    # for debugging
+    . setting.sh
+    LOG=/dev/stdout
+fi
 
 die () {
     echo -e "${FIRST_COLOR}>${DIE_2ND_COLOR}>${DIE_3RD_COLOR}> ERROR:${NORMAL} ${@}" && exit 1
