@@ -1,8 +1,8 @@
 #! /usr/bin/env bash
 
 if test x"${PKGNAME}" != x"tjyMOD"; then
-    # for debugging
-    workdir="$(readlink -f $(dirname $0))"
+    # for debugging (source core.sh)
+    workdir="$(readlink -f $(dirname $1))"
     . setting.sh
     LOG=/tmp/tjyMOD.txt
 fi
