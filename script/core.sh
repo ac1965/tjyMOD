@@ -3,7 +3,8 @@
 if test x"${PKGNAME}" != x"tjyMOD"; then
     # for debugging
     . setting.sh
-    LOG=/dev/stdout
+    wdir=$(pwd)
+    LOG=/tmp/tjyMOD.txt
 fi
 
 die () {
