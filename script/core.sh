@@ -1,12 +1,5 @@
 #! /usr/bin/env bash
 
-if test x"${PKGNAME}" != x"tjyMOD"; then
-    # for debugging (source core.sh)
-    workdir="$(pwd)"
-    . setting.sh
-    LOG=/tmp/tjyMOD.txt
-fi
-
 die () {
     echo -e "${FIRST_COLOR}>${DIE_2ND_COLOR}>${DIE_3RD_COLOR}> ERROR:${NORMAL} ${@}" && exit 1
 }
@@ -45,9 +38,7 @@ unpack () {
     ewarn "unpack: $(readlink -f $1)"
     test -d $TEMP_DIR || mkdir -p $TEMP_DIR
     out="$(basename $1)"
-    cd $TEMP_DIR
     dexec unzip -x $1 -d $TEMP_DIR/$out >> $LOG 2>&1
-    cd - > /dev/null
 }
 
 download () {
@@ -57,10 +48,8 @@ download () {
     test -d $DOWN_DIR || mkdir -p $DOWN_DIR
 
     ewarn "Download from $url"
-    cd $DOWN_DIR
-    dexec wget $url -O $target >/dev/null 2>&1
-    md5sum $target > ${target}.sum
-    cd - > /dev/null
+    dexec wget $url -O $DOWN_DIR/$target >/dev/null 2>&1
+    md5sum $DOWN_DIR/$target > $DOWN_DIR/${target}.sum
 }
 
 
@@ -71,12 +60,12 @@ pretty_download () {
 
     if [ -f $DOWN_DIR/${target}.sum ]; then
         cd $DOWN_DIR
-        ret=$(md5sum --status --check ${target}.sum)
-        cd - > /dev/null
-        case "${ret}" in
+        md5sum --status --check ${target}.sum
+        case "$?" in
             0) ewarn "md5sum:$target checked, cached use.";;
             1) download $url $target;;
         esac
+        cd - > /dev/null
     else
         download $url $target
     fi
