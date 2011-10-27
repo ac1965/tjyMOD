@@ -2,8 +2,8 @@
 
 if test x"${PKGNAME}" != x"tjyMOD"; then
     # for debugging
-    . setting.sh
     wdir=$(pwd)
+    . setting.sh
     LOG=/tmp/tjyMOD.txt
 fi
 
