@@ -2,7 +2,7 @@
 
 if test x"${PKGNAME}" != x"tjyMOD"; then
     # for debugging
-    workdir=$(pwd)
+    workdir="$(readlink -f $(dirname $0))"
     . setting.sh
     LOG=/tmp/tjyMOD.txt
 fi
