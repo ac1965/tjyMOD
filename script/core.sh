@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-test x"${PKGNAME}" = "tjyMOD" || . setting.sh # for debugging
+test x"${PKGNAME}" = x"tjyMOD" || . setting.sh # for debugging
 
 die () {
     echo -e "${FIRST_COLOR}>${DIE_2ND_COLOR}>${DIE_3RD_COLOR}> ERROR:${NORMAL} ${@}" && exit 1
