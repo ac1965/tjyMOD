@@ -85,8 +85,10 @@ download_apps () {
         pretty_download ${apps} ${u}/${apps} "no"
         ewarn "COPY:${which}:${apps}"
         if [ "${which}" = "base" ]; then
+            test -d ${OUT_DIR}/system/app || mkdir -p ${OUT_DIR}/system/app
             cp ${DOWN_DIR}/${apps} ${OUT_DIR}/system/app/
         elif [ "${which}" = "extra" ]; then
+            test -d ${OUT_DIR}/data/app || mkdir -p ${OUT_DIR}/data/app
             cp ${DOWN_DIR}/${apps} ${OUT_DIR}/data/app/
         fi
     done
