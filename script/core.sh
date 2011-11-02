@@ -35,7 +35,7 @@ EOF
 }
 
 unpack () {
-    ewarn "unpack: $(readlink -f $1)"
+    ewarn "unpack $(readlink -f $1)"
     test -d $TEMP_DIR || mkdir -p $TEMP_DIR
     out="$(basename $1)"
     dexec unzip -x $1 -d $TEMP_DIR/$out >> $LOG 2>&1
@@ -43,64 +43,76 @@ unpack () {
 
 download () {
     url=$1
-    target=$2
 
-    test -d $DOWN_DIR || mkdir -p $DOWN_DIR
-
-    ewarn "Download from $url"
-    dexec wget $url -O $DOWN_DIR/$target >/dev/null 2>&1
-    md5sum $DOWN_DIR/$target > $DOWN_DIR/${target}.sum
+    target=$(basename $url)
+    downdir=$(readlink -f $DOWN_DIR)
+    echo -ne ": ${INFO_3RD_COLOR}Download${NORMAL} "
+    dexec wget $url -O ${downdir}/${target} >/dev/null 2>&1
 }
 
-
 pretty_download () {
-    target=$1
-    url=$2
-	req_unpack=$3
+    url=$1
 
-    if [ -f $DOWN_DIR/${target}.sum ]; then
-        cd $DOWN_DIR
-        md5sum --status --check ${target}.sum
+    target=$(basename $url)
+    downdir=$(readlink -f $DOWN_DIR)
+    cd $DOWN_DIR
+    if [ -f ${DOWN_DIR}/${target}.sum ]; then
+        md5sum --status --check ${DOWN_DIR}/${target}.sum
         case "$?" in
-            0) ewarn "md5sum:$target checked, cached use.";;
-            1) download $url $target;;
+            0)
+                echo -ne ": ${FIRST_COLOR}Exist${NORMAL} \n";;
+            *)
+                download $url;;
         esac
-        cd - > /dev/null
     else
-        download $url $target
+        download $url
+        md5sum $target > ${DOWN_DIR}/${target}.sum
     fi
-    test x"${req_unpack}" = x"no" || unpack $DOWN_DIR/$target
-
+    cd - > /dev/null
 }
 
 download_apps () {
-    which=$1
-    
-    u="${default_url}/${which}"
-    list="${u}/${which}.list"
-    ewarn "Get: ${which}.list"
-    dexec wget $list -O $DOWN_DIR/${which}.list >/dev/null 2>&1 || die "Can't download ${list}"
-    for apps in $(cat ${DOWN_DIR}/${which}.list)
-    do
-        pretty_download ${apps} ${u}/${apps} "no"
-        ewarn "COPY:${which}:${apps}"
-        if [ "${which}" = "base" ]; then
-            test -d ${OUT_DIR}/system/app || mkdir -p ${OUT_DIR}/system/app
-            cp ${DOWN_DIR}/${apps} ${OUT_DIR}/system/app/
-        elif [ "${which}" = "extra" ]; then
-            test -d ${OUT_DIR}/data/app || mkdir -p ${OUT_DIR}/data/app
-            cp ${DOWN_DIR}/${apps} ${OUT_DIR}/data/app/
+    url=$1
+    dest=$2
+
+    target=$(basename $url)
+    ewarn_n  "Get: $target"
+    cd $DOWN_DIR
+    pkgsum=$(grep $target packages.list | cut -d' ' -f1)
+    if [ -f $target ]; then
+        targetsum=$(md5sum $target | cut -d' ' -f1)
+        if [ x"${pkgsum}" = x"${targetsum}" ]; then
+            echo -ne " : ${FIRST_COLOR}Exist${NORMAL} "
+        else
+            download $url
         fi
-    done
+    else
+        download $url
+    fi
+  
+    echo -ne ": Copy $dest\n"
+    if [ "${dest}" = "/system/app" ]; then
+        test -d ${OUT_DIR}/system/app || mkdir -p ${OUT_DIR}/system/app
+        cp $target ${OUT_DIR}/system/app/
+    elif [ "${dest}" = "/data/app" ]; then
+        test -d ${OUT_DIR}/data/app || mkdir -p ${OUT_DIR}/data/app
+        cp $target ${OUT_DIR}/data/app/
+    fi
+    cd - > /dev/null
 }
 
 pretty_get () {
     fname=$1
 
     target=$(basename $fname)   
-    ewarn "Get $which: $target"
+    ewarn_n  "Get: $target"
     url="${default_url}/${target}"
-    test -f $fname && unpack $fname || pretty_download $target $url
+    if [ -f $fname ]; then
+        unpack $fname
+    else
+        pretty_download $url
+        unpack ${DOWN_DIR}/${target}
+    fi
 }
 
 merge () {
@@ -128,7 +140,8 @@ merge () {
 remove () {
     for t in "$@"
     do
-        rm -fr $t
+        ewarn "Remove:$(readlink -f ${t})"
+		rm -fr $t
     done
 }
 
@@ -154,7 +167,7 @@ pretty_fix () {
     echo -ne "\n"
 }
 
-pretty_extra () {
+pretty_extrat () {
     cd $1
     for d in $DIRS
     do
@@ -167,8 +180,8 @@ pretty_extra () {
 
 mix_extra () {
     ewarn_n "Mixup: $(readlink -f $BASE_DIR)\n * "
-    pretty_extra $BASE_DIR
-    pretty_extra $EXTR_DIR
+    pretty_extrat $BASE_DIR
+    pretty_extrat $EXTR_DIR
     echo -ne "\n"
 
     ewarn_n "PRE: $(readlink -f $OUT_DIR)\n * "
@@ -304,10 +317,14 @@ build () {
     remove $TEMP_DIR/$baserom $TEMP_DIR/$kernel $TEMP_DIR/$gapps
     mix_extra
 
-    for t in base extra
+    for t in $base_list
 	do
-    	download_apps $t
+    	download_apps $t "/system/app"
 	done
+    for t in $extra_list
+    do
+        download_apps $t "/data/app"
+    done
 
     zipped_sign
 }
