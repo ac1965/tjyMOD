@@ -6,6 +6,7 @@ rm /system/app/GoogleMusicICS*.apk
 rm /system/app/HTC_IME_hi22*.apk
 rm /system/app/LatinIME*.apk
 rm /system/app/Vending*.apk
+rm /system/app/RomManager*.apk
 rm /system/app/com.gau.go.launcherex*.apk
 rm /system/app/com.gau.go.launcherex.theme.gowidget.transparency*.apk
 rm /system/app/com.jbapps.contactpro*.apk
