@@ -47,7 +47,8 @@ download () {
     target=$(basename $url)
     downdir=$(readlink -f $DOWN_DIR)
     echo -ne ": ${INFO_3RD_COLOR}Download${NORMAL} "
-    dexec wget $url -O ${downdir}/${target} >/dev/null 2>&1
+    wget $url -q -O ${downdir}/${target}
+    return $?
 }
 
 pretty_download () {
@@ -62,11 +63,13 @@ pretty_download () {
             0)
                 echo -ne ": ${FIRST_COLOR}Exist${NORMAL} \n";;
             *)
-                download $url;;
+                download $url
+                echo -ne "\n";;
         esac
     else
         download $url
         md5sum $target > ${DOWN_DIR}/${target}.sum
+        echo -ne  "\n"
     fi
     cd - > /dev/null
 }
@@ -84,10 +87,10 @@ download_apps () {
         if [ x"${pkgsum}" = x"${targetsum}" ]; then
             echo -ne " : ${FIRST_COLOR}Exist${NORMAL} "
         else
-            download $url
+            download $url || die "\nDownload Error"
         fi
     else
-        download $url
+        download $url || die "\nDownload Error"
     fi
   
     echo -ne ": Copy $dest\n"
@@ -108,6 +111,7 @@ pretty_get () {
     ewarn_n  "Get: $target"
     url="${default_url}/${target}"
     if [ -f $fname ]; then
+        echo -ne "\n"
         unpack $fname
     else
         pretty_download $url
@@ -254,8 +258,12 @@ zipped_sign () {
 		dexec cp -a ${SDCARD_DIR} $OUT_DIR/.
 
     echo -ne " updater-script"
+    sed -i '/show_progress(0.500000, 0);/a \
+ui_print("* Format /system"); \
+' _u
     sed -i '/mount("ext4", "EMMC", "\/dev\/block\/mmcblk0p25",/a \
 mount("ext4", "EMMC", "/dev/block/mmcblk0p26", "/data"); \
+ui_print("* Extract ROM"); \
 ' _u
     sed -i '/package_extract_dir("system",/a \
 package_extract_dir("data","/data"); \
@@ -268,6 +276,9 @@ package_extract_dir("sdcard","/sdcard"); \
     sed -i '/set_perm(0, 0, 06755, "\/system\/xbin\/tcpdump");/a \
 symlink("/system/etc/init.d/70aufs", "/system/xbin/aufs"); \
 symlink("/system/etc/init.d/98governor", "/system/xbin/governor"); \
+' _u
+    sed -i '/package_extract_file("boot.img",/a \
+ui_print("* Write Kernel Image"); \
 ' _u
     sed -i '/unmount("\/system");/a \
 unmount("/data"); \
