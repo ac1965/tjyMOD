@@ -85,11 +85,10 @@ download_apps () {
     target=$(basename $url)
     ewarn_n  "Get: $target"
     cd $DOWN_DIR
+    
     test $local_extra = 1 && if [ -f ${target}.sum ]; then
-	pkgsum=$(grep $target ${target}.sum | cut -d' ' -f1)
-    else
-    	pkgsum=$(grep $target packages.list | cut -d' ' -f1)
-    fi
+	    pkgsum=$(grep $target ${target}.sum | cut -d' ' -f1)
+    fi || pkgsum=$(grep $target packages.list | cut -d' ' -f1)
     if [ -f $target ]; then
         targetsum=$(md5sum $target | cut -d' ' -f1)
         if [ x"${pkgsum}" = x"${targetsum}" ]; then
@@ -115,7 +114,7 @@ download_apps () {
         test -d ${OUT_DIR}/data/app || mkdir -p ${OUT_DIR}/data/app
         cp $target ${OUT_DIR}/data/app/
     else
-	ewarn "${dest}"
+	    ewarn "${dest}"
     fi
     cd - > /dev/null
 }
@@ -272,7 +271,7 @@ zipped_sign () {
         for f in libhtc_ril.so libril.so
         do
             test -f ${RIL_DIR}/HTC-RIL_${ril_version}/${f} && \
-            dexec cp ${RIL_DIR}/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/system/lib/${f}
+                dexec cp ${RIL_DIR}/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/system/lib/${f}
         done
     fi
 
