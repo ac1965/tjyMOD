@@ -17,13 +17,15 @@ ewarn_n () {
 }
 
 dexec () {
-    CMD="$@"
+    local CMD="$@"
+
     echo "Exec:$CMD" >> $LOG
     eval $CMD >> $LOG 2>&1 || die "Die:$CMD"
 }
 
 usage () {
-    rils=$(ls ${RIL_DIR} | tr '\n' ' ' | sed 's/HTC-RIL_//g')
+    local rils=$(ls ${RIL_DIR} | tr '\n' ' ' | sed 's/HTC-RIL_//g')
+
     cat <<EOF
 Usage:
    $PKGNAME (-v) all|clean [(--kernel KERNEL_FILE) (--baserom ROM_FILE)]
@@ -45,10 +47,10 @@ unpack () {
 }
 
 download () {
-    url=$1
+    local url=$1
+    local target=$(basename $url)
+    local downdir=$(readlink -f $DOWN_DIR)
 
-    target=$(basename $url)
-    downdir=$(readlink -f $DOWN_DIR)
     echo -ne ": ${INFO_3RD_COLOR}Download${NORMAL} "
     dexec echo "download ${target} from ${url}"
     wget $url -q -O ${downdir}/${target}
@@ -56,10 +58,10 @@ download () {
 }
 
 pretty_download () {
-    url=$1
+    local url=$1
+    local target=$(basename $url)
+    local downdir=$(readlink -f $DOWN_DIR)
 
-    target=$(basename $url)
-    downdir=$(readlink -f $DOWN_DIR)
     cd $DOWN_DIR
     if [ -f ${DOWN_DIR}/${target}.sum ]; then
         md5sum --status --check ${DOWN_DIR}/${target}.sum
@@ -79,13 +81,13 @@ pretty_download () {
 }
 
 download_apps () {
-    url=$1
-    dest=$2
+    local url=$1
+    local dest=$2
+    local target=$(basename $url)
 
-    target=$(basename $url)
     ewarn_n  "Get: $target"
     cd $DOWN_DIR
-    
+
     test $local_extra = 1 && if [ -f ${target}.sum ]; then
 	    pkgsum=$(grep $target ${target}.sum | cut -d' ' -f1)
     fi || pkgsum=$(grep $target packages.list | cut -d' ' -f1)
@@ -120,9 +122,9 @@ download_apps () {
 }
 
 pretty_get () {
-    fname=$1
+    local fname=$1
+    local target=$(basename $fname)
 
-    target=$(basename $fname)   
     ewarn_n  "Get: $target"
     url="${default_url}/${target}"
     if [ -f $fname ]; then
@@ -135,8 +137,8 @@ pretty_get () {
 }
 
 merge () {
-    target=$1
-    dirs="$2"
+    local target=$1
+    local dirs="$2"
 
     for t in $target
     do
@@ -153,7 +155,6 @@ merge () {
         )
         echo -ne "\n"
     done
-
 }
 
 remove () {
@@ -165,7 +166,7 @@ remove () {
 }
 
 pretty_fix () {
-    suffix=$1
+    local suffix=$1
 
     cd $OUT_DIR
     for f in $(find . -name "*.${suffix}")
@@ -225,11 +226,10 @@ mix_extra () {
 }
 
 mkbootimg () {
-    OLDIMG=$1
-    ZIMAGE=$2
-    BOOT=$3
-    
-    T="$TEMP_DIR/mkbootimg"
+    local OLDIMG=$1
+    local ZIMAGE=$2
+    local BOOT=$3
+    local T="$TEMP_DIR/mkbootimg"
 
     test -d $T || mkdir -p $T
     dexec dd if=$OLDIMG of=$TEMP_DIR/boot.img
@@ -242,9 +242,10 @@ mkbootimg () {
 }
 
 zipped_sign () {
-    NAME=${PKGNAME}-${dt}
-    ZIPF="$(readlink -f $OUT_DIR/../${NAME}.zip)"
-    OUTF="$(readlink -f $OUT_DIR/../${NAME}.signed.zip)"
+    local NAME=${PKGNAME}-${dt}
+    local ZIPF="$(readlink -f $OUT_DIR/../${NAME}.zip)"
+    local OUTF="$(readlink -f $OUT_DIR/../${NAME}.signed.zip)"
+
     ewarn_n "BUILD ROM: $(basename $OUTF)\n * "
     cd $OUT_DIR
     test -f $ZIPF && rm -f $ZIPF
@@ -342,9 +343,9 @@ unmount("/data"); \
 }
 
 build () {
-    baserom=$(basename $1)
-    kernel=$(basename $2)
-    gapps=$(basename $3)
+    local baserom=$(basename $1)
+    local kernel=$(basename $2)
+    local gapps=$(basename $3)
 
     test -d $OUT_DIR && rm -fr $OUT_DIR
     mkdir -p $OUT_DIR

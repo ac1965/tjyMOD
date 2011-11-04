@@ -9,6 +9,8 @@ dt=$(date +%Y%m%d)
 . $workdir/setting.sh || exit 1
 . $workdir/core.sh || exit 1
 
+trap "echo -e \"\n\n\t${REMARK_COLOR}Cauch IRQ! QUIT${NORMAL}\n\"; rm -fr $TEMP_DIR" 2 9 15 # SIG_INT SIG_KILL SIG_TERM
+
 kernel_file=
 baserom_file=
 local_extra_file=
