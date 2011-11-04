@@ -26,7 +26,10 @@ usage () {
     rils=$(ls ${RIL_DIR} | tr '\n' ' ' | sed 's/HTC-RIL_//g')
     cat <<EOF
 Usage:
-   $PKGNAME (-v) all (--kernel KERNEL_FILE) (--baserom ROM_FILE) (--gapps GAPS_FILE) (--gps-locale LOCALE) (--ril-versio VER)
+   $PKGNAME (-v) all|clean [(--kernel KERNEL_FILE) (--baserom ROM_FILE)]
+                           [--enable-local-extra FILE]
+                           [(--gapps GAPS_FILE) (--gps-locale LOCALE) (--ril-versio VER)]
+
    $PKGNAME (-v) clean
 
        RILS: ${rils}
