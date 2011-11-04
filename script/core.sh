@@ -50,6 +50,7 @@ download () {
     target=$(basename $url)
     downdir=$(readlink -f $DOWN_DIR)
     echo -ne ": ${INFO_3RD_COLOR}Download${NORMAL} "
+    dexec echo "download ${target} from ${url}"
     wget $url -q -O ${downdir}/${target}
     return $?
 }
