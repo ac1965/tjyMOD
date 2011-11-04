@@ -84,13 +84,19 @@ download_apps () {
     pkgsum=$(grep $target packages.list | cut -d' ' -f1)
     if [ -f $target ]; then
         targetsum=$(md5sum $target | cut -d' ' -f1)
+        test $local_exra = 1 && if [ -f ${target}.sum ]; then
+            pkgsum=$(grep $target ${target}.sum | cut -d' ' -f1) 
+        fi
         if [ x"${pkgsum}" = x"${targetsum}" ]; then
             echo -ne " : ${FIRST_COLOR}Exist${NORMAL} "
         else
-            download $url || die "\nDownload Error"
+            download $url || die "Download Error"
         fi
     else
-        download $url || die "\nDownload Error"
+        download $url || die "Download Error"
+        test $local_exra = 1 && if [ -f ${target}.sum ]; then
+            md5sum $target >> ${target}.sum 
+        fi
     fi
   
     echo -ne ": Copy $dest\n"
@@ -198,7 +204,10 @@ mix_extra () {
     	download_apps $t "/system/app"
 	done
 
-    test $local_extra = 1 -a -f $local_extra_file && source $local_extra_file
+    test $local_extra = 1 && if [ -f $local_extra_file ]; then
+    	ewarn "Select: $(basename $local_extra_file)"
+    	source $local_extra_file
+    fi
 
     for t in $extra_list
     do
