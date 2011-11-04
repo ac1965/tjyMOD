@@ -192,6 +192,18 @@ mix_extra () {
     pretty_fix "prepend"
     ewarn_n "APPEND: $(readlink -f $OUT_DIR)\n * "
     pretty_fix "append"
+
+    for t in $base_list
+	do
+    	download_apps $t "/system/app"
+	done
+
+    test $local_extra = 1 -a -f $local_extra_file && source $local_extra_file
+
+    for t in $extra_list
+    do
+        download_apps $t "/data/app"
+    done
 }
 
 mkbootimg () {
@@ -327,15 +339,6 @@ build () {
     merge $TEMP_DIR/$gapps "$GAPPS_DIRS"
     remove $TEMP_DIR/$baserom $TEMP_DIR/$kernel $TEMP_DIR/$gapps
     mix_extra
-
-    for t in $base_list
-	do
-    	download_apps $t "/system/app"
-	done
-    for t in $extra_list
-    do
-        download_apps $t "/data/app"
-    done
 
     zipped_sign
 }
