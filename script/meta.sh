@@ -9,9 +9,9 @@ dt=$(date +%Y%m%d)
 . $workdir/setting.sh || exit 1
 . $workdir/core.sh || exit 1
 
-verbose=0
 kernel_file=
 baserom_file=
+local_extra_file=
 logf=${O}/${PKGNAME}_$dt.log
 
 einfo "Android ROM Build v${VERSION} - ${giturl}"
@@ -19,8 +19,11 @@ einfo "Android ROM Build v${VERSION} - ${giturl}"
 test "$#" = 0 && usage
 
 prev=
+verbose=0
+local_extra=0
 gps_locale=
 ril_version=
+
 for option
 do
     if test -n "$prev"; then
@@ -47,6 +50,11 @@ do
             prev=gapps_file;;
         --gapps=*|-gapps=*|-g-*)
             gapps_file=$optarg;;
+        --enable-local-etra-file|-enable-local-extra-file|-e)
+            local_extra=1
+            prev=local_extra_file;;
+        --enable-local-etra-file=*|-enable-local-extra-file=*|-e=*)
+            local_extra_file=$optarg;;
         --gps-locale|-gps-locale|-l)
             prev=gps_locale;;
         --gps-locale=*|-gps-locale=*|-l=*)
@@ -61,7 +69,7 @@ do
         -*) die "recognized option: $optarg";;
     esac
 
-    for var in kernel_file baserom_file gapps_file
+    for var in kernel_file baserom_file gapps_file local_extra_file
     do
         eval val=$`echo $var`
         test -z $val && continue
