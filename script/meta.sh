@@ -88,7 +88,7 @@ test -z $kernel_file && kernel_file=$default_kernel
 test -z $baserom_file && baserom_file=$default_baserom
 test -z $gapps_file && gapps_file=$default_gapps
 test -d $O || install -d $O
-test -d $DOWN_DIR || mkdir -p $DOWN_DIR
+test -d $DOWN_DIR || install -d $DOWN_DIR
 test -f $logf && mv $logf $logf.prev
 
 for option
