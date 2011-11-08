@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 PKGNAME=tjyMOD
-VERSION=0.44
+VERSION=0.45
 
 # I hope to put site my KANG, kernel and ROM.
 giturl="git://github.com/ac1965/tjyMOD.git"
@@ -53,7 +53,8 @@ CLEAN_LIST="kernel \
             system/app/Provision.apk \
             system/app/ADWLauncher.apk \
             system/app/MarketUpgrader.apk \
-            setup/kor" # for the moment
+            system/app/RomManager.apk \
+            system/app/Protips.apk"
 
 O="$workdir/../out"
 DOWN_DIR="$workdir/../download"
