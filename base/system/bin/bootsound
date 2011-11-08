@@ -1,9 +1,22 @@
 #!/system/bin/sh
 
 bprop=/system/build.prop
+audio_file=/system/media/android_audio.mp3
+die () {
+        echo "$1"
+        exit 1
+}
 
 play=$(cat $bprop | egrep -c -i -o ro.config.play.bootsound=1)
 if [ "$play" = "1" ]; then
-        stagefright -a -o /system/media/android_audio.mp3
+        case "$#" in
+        0) ;;
+        1) audio_file=$1;;
+        *) die "too argument";;
+        esac
+        test -f $audio_file || die "$audio_file not found"
+        stagefright -a -o $audio_file
+else
+        echo "Boot sound disable"
 fi
 exit 0
