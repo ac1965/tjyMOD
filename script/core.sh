@@ -41,7 +41,7 @@ EOF
 
 unpack () {
     ewarn "unpack $(readlink -f $1)"
-    test -d $TEMP_DIR || mkdir -p $TEMP_DIR
+    test -d $TEMP_DIR || install -d $TEMP_DIR
     out="$(basename $1)"
     dexec unzip -x $1 -d $TEMP_DIR/$out >> $LOG 2>&1
 }
@@ -110,10 +110,10 @@ download_apps () {
 
     echo -ne ": Copy $dest\n"
     if [ "${dest}" = "/system/app" ]; then
-        test -d ${OUT_DIR}/system/app || mkdir -p ${OUT_DIR}/system/app
+        test -d ${OUT_DIR}/system/app || install -d ${OUT_DIR}/system/app
         cp $target ${OUT_DIR}/system/app/
     elif [ "${dest}" = "/data/app" ]; then
-        test -d ${OUT_DIR}/data/app || mkdir -p ${OUT_DIR}/data/app
+        test -d ${OUT_DIR}/data/app || install -d ${OUT_DIR}/data/app
         cp $target ${OUT_DIR}/data/app/
     else
 	    ewarn "${dest}"
@@ -231,7 +231,7 @@ mkbootimg () {
     local BOOT=$3
     local T="$TEMP_DIR/mkbootimg"
 
-    test -d $T || mkdir -p $T
+    test -d $T || install -d $T
     dexec dd if=$OLDIMG of=$TEMP_DIR/boot.img
     dexec $TOOLS_DIR/unpackbootimg -i $TEMP_DIR/boot.img -o $T
     dexec $TOOLS_DIR/mkbootimg --kernel $ZIMAGE --ramdisk $T/boot.img-ramdisk.gz \
