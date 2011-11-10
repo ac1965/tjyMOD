@@ -268,7 +268,7 @@ zipped_sign () {
 
     # RIL selected    
     if [ -d ${RIL_DIR}/HTC-RIL_${ril_version} ]; then
-        echo -ne " RIL[${REMARK_COLOR}$ril_version]${NORMAL}]"
+        echo -ne " RIL[${REMARK_COLOR}$ril_version${NORMAL}]"
         sed -i 's/RIL   : DEFAULT/RIL   : '$ril_version'/' _u
         for f in rild
         do
@@ -284,7 +284,7 @@ zipped_sign () {
 
     # Market selected
     if [ -f ${MARKET_DIR}/Vending-${market_version}.apk ]; then
-        echo -ne " MARKET[${REMARK_COLOR}$market_version]${NORMAL}]"
+        echo -ne " MARKET[${REMARK_COLOR}$market_version${NORMAL}]"
         sed -i 's/MARKET: DEFAULT/MARKET: '$market_version'/' _u
         dexec cp ${MARKET_DIR}/Vending-${market_version}.apk ${OUT_DIR}/system/app/Vending.apk
     fi
