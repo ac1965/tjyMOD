@@ -7,7 +7,7 @@ VERSION=0.45
 giturl="git://github.com/ac1965/tjyMOD.git"
 default_url="http://tjy.sakura.ne.jp/pu/up/android"
 default_kernel="update_2.6.35-BFS-WIP-AUFS_201111071812.zip" # LorDmodUE-8.3-CFS-b1-aufs
-default_baserom="update-cm-7.1.0-DesireHD-KANG_201111050214.signed.zip"
+default_baserom="update-cm-7.1.0-DesireHD-KANG_201111092233.signed.zip"
 default_gapps="gapps-gb-20110930-237-signed.zip"
 
 base_list="
