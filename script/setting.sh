@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 PKGNAME=tjyMOD
-VERSION=0.51
+VERSION=0.6
 
 # I hope to put site my KANG, kernel and ROM.
 giturl="git://github.com/ac1965/tjyMOD.git"
@@ -68,6 +68,7 @@ SDCARD_DIR="${EXTR_DIR}/sdcard"
 SDMOD_DIR="${SDCARD_DIR}/tjyMOD"
 GPS_DIR="${SDMOD_DIR}/gpsconf"
 RIL_DIR="${SDMOD_DIR}/ril"
+MARKET_DIR="${SDMOD_DIR}/market"
 
 # color escape
 NORMAL="\033[0m"

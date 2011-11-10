@@ -9,9 +9,6 @@ dt=$(date +%Y%m%d)
 . $workdir/setting.sh || exit 1
 . $workdir/core.sh || exit 1
 
-# SIG_INT SIG_KILL SIG_TERM
-trap "echo -e \"\n\n\t${REMARK_COLOR}Cauch IRQ! QUIT${NORMAL}\n\"; rm -fr $TEMP_DIR" 2 9 15
-
 kernel_file=
 baserom_file=
 local_extra_file=
@@ -26,6 +23,7 @@ verbose=0
 local_extra=0
 gps_locale=
 ril_version=
+market_version=
 
 for option
 do
@@ -66,6 +64,10 @@ do
             prev=ril_version;;
         --ril-version=*|-ril=*|-r=*)
             ril_version=$optarg;;
+        --market-version|-market-version|-market|-m)
+            prev=market_version;;
+        --market-version=*|-market-version=*|-market=*|-m=*)
+            market_version=$optarg;;
         --help|-help|-h) usage;;
         --verbose|-verbose|-v)
             LOG=/dev/sdtout; verbose=1;;
@@ -87,6 +89,7 @@ test -z $gapps_file && gapps_file=$default_gapps
 test -d $O || install -d $O
 test -d $DOWN_DIR || install -d $DOWN_DIR
 test -f $logf && mv $logf $logf.prev
+gps_locale=$(echo $gps_locale | tr '[a-z]' '[A-Z]')
 
 for option
 do

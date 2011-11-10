@@ -24,17 +24,22 @@ dexec () {
 }
 
 usage () {
-    local rils=$(ls ${RIL_DIR} | tr '\n' ' ' | sed 's/HTC-RIL_//g')
+    local rils=$(ls ${RIL_DIR} | sed 's/HTC-RIL_//g')
+    local rils_ver=$(for ver in $rils; do printf " %-9s" $ver; done)
+    local markets=$(ls ${MARKET_DIR} | sed 's/Vending-//g' | sed 's/\.apk//g')
+    local markets_ver=$(for ver in $markets; do printf " %-9s" $ver; done)
 
     cat <<EOF
 Usage:
    $PKGNAME (-v) all|clean [(--kernel KERNEL_FILE) (--baserom ROM_FILE)]
                            [--enable-local-extra FILE]
-                           [(--gapps GAPS_FILE) (--gps-locale LOCALE) (--ril-versio VER)]
+                           [(--gapps GAPS_FILE)]
+                           [(--ril-version VER) (--market-version VER) (--gps-locale LOCALE)]
 
    $PKGNAME (-v) clean
 
-       RILS: ${rils}
+       RILS:   ${rils_ver}
+       MARKETS:${markets_ver}
 EOF
     exit
 }
@@ -70,6 +75,7 @@ pretty_download () {
                 echo -ne ": ${FIRST_COLOR}Exist${NORMAL} \n";;
             *)
                 download $url
+                md5sum $target > ${DOWN_DIR}/${target}.sum
                 echo -ne "\n";;
         esac
     else
@@ -256,14 +262,14 @@ zipped_sign () {
 
     cat $ART_DIR/logo.txt META-INF/com/google/android/updater-script > _u
     sed -i 's/DD_VERSION/'${PKGNAME}-v${VERSION}_${dt}'/' _u
-    sed -i 's/DD_BASEROM/'$(basename ${baserom_file})'/' _u
-    sed -i 's/DD_KERNEL/'$(basename ${kernel_file})'/' _u
-    sed -i 's/DD_GAPPS/'$(basename ${gapps_file})'/' _u
+    sed -i 's/DD_BASEROM/'$(echo $(basename ${baserom_file}) | sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
+    sed -i 's/DD_KERNEL/'$(echo $(basename ${kernel_file}) | sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
+    sed -i 's/DD_GAPPS/'$(echo $(basename ${gapps_file}) | sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
 
     # RIL selected    
     if [ -d ${RIL_DIR}/HTC-RIL_${ril_version} ]; then
         echo -ne " RIL[${REMARK_COLOR}$ril_version]${NORMAL}]"
-        sed -i 's/RIL: DEFAULT/RIL: '$ril_version'/' _u
+        sed -i 's/RIL   : DEFAULT/RIL   : '$ril_version'/' _u
         for f in rild
         do
             test -f ${RIL_DIR}/HTC-RIL_${ril_version}/${f} && \
@@ -276,12 +282,18 @@ zipped_sign () {
         done
     fi
 
+    # Market selected
+    if [ -f ${MARKET_DIR}/Vending-${market_version}.apk ]; then
+        echo -ne " MARKET[${REMARK_COLOR}$market_version]${NORMAL}]"
+        sed -i 's/MARKET: DEFAULT/MARKET: '$market_version'/' _u
+        dexec cp ${MARKET_DIR}/Vending-${market_version}.apk ${OUT_DIR}/system/app/Vending.apk
+    fi
+
     # Locale selected: /system/etc/gps.conf copy each countries
     test -z $gps_locale || (
-        gps_locale="$(echo $gps_locale | tr '[a-z]' '[A-Z]')"
         if [ -d $GPS_DIR/${gps_locale} ]; then
             echo -ne " Locale[${REMARK_COLOR}$gps_locale${NORMAL}]"
-            sed -i 's/GPS: DEFAULT/GPS: '$gps_locale'/' _u
+            sed -i 's/GPS   : DEFAULT/GPS   : '$gps_locale'/' _u
             dexec cp $GPS_DIR/${gps_locale}/gps.conf $OUT_DIR/system/etc
         fi
     )
@@ -329,6 +341,7 @@ unmount("/data"); \
     echo "KERNEL  : $(basename $kernel_file)" >> $OUT_DIR/build_${NAME}.txt
     echo "GAPPS   : $(basename $gapps_file)" >> $OUT_DIR/build_${NAME}.txt
     echo "RIL     : ${ril_version}" >> $OUT_DIR/build_${NAME}.txt
+    echo "MARKET  : ${market_version}" >> $OUT_DIR/build_${NAME}.txt
     echo "GPS     : ${gps_locale}" >> $OUT_DIR/build_${NAME}.txt
     for f in $CLEAN_LIST
     do
