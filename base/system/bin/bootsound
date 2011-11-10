@@ -1,22 +1,89 @@
 #!/system/bin/sh
 
-bprop=/system/build.prop
 audio_file=/system/media/android_audio.mp3
+audio_debug=/data/local/audio.debug
+local_file=/data/local/boot/android_audio.mp3
+
 die () {
-        echo "$1"
-        exit 1
+    echo "$1"
+    exit 1
 }
 
-play=$(cat $bprop | egrep -c -i -o ro.config.play.bootsound=1)
-if [ "$play" = "1" ]; then
-        case "$#" in
-        0) ;;
-        1) audio_file=$1;;
-        *) die "too argument";;
+system_remount () {
+    mode=$1
+    message=$2
+
+    sync; sync; sync; sleep 1
+    case "$mode" in
+        rw)
+            mount -o remount,$mode /system
+            ;;
+        ro)
+            mount -o remount,$mode /system
+            echo $message
+            ;;
+    esac
+}
+
+write_debug () {
+    echo "$1" > $audio_debug
+}
+
+local_dir=$(dirname $local_file)
+debug_dir=$(dirname $audio_debug)
+
+test -d $debug_dir || install -d $debug_dir
+touch $audio_debug
+
+play=$(cat /system/build.prop | egrep -c -i -o ro.config.play.bootsound=1)
+
+case "$1" in
+    --on|-on|on)
+        if [ -e $local_file ]; then
+            system_remount "rw"
+            cp $local_file $audio_file
+            system_remount "ro" "boot sound enabled.."
+            write_debug "on"
+        else
+            echo "$local_file not found."
+        fi
+        ;;
+    --off|-off|off)
+        if [ -e $audio_file ]; then
+            system_remount "rw"
+            test -d $local_dir || install -d $local_dir
+            cp $audio_file $local_file
+            rm $audio_file
+            system_remount "ro" "boot sound disable.."
+            write_debug "off"
+        else
+            echo "$audio_file not found."
+        fi
+        ;;
+    --status|-status|-s|status)
+        status=$(cat $audio_debug)
+        case "$status" in
+            on)
+                test -f $audio_file && echo "boot sound enable." || \
+                    echo "CHECK:$audio_file not found"
+                ;;
+            off)
+                test -f $audio_file && echo "CHECK:$audio_file exist" || \
+                    echo "boot sound disable."
+                ;;
         esac
-        test -f $audio_file || die "$audio_file not found"
-        stagefright -a -o $audio_file
-else
-        echo "Boot sound disable"
-fi
+        ;;
+    *)
+        if [ "$play" = "1" ]; then
+            if  [ x"$1" != x"" ]; then
+                audio_file=$1
+                test -f $audio_file || die "$audio_file not found"
+            fi
+            stagefright -a -o $audio_file
+        else
+            echo "Boot sound disable"
+        fi
+        ;;
+esac
+
 exit 0
