@@ -76,7 +76,7 @@ do
     do
         eval val=$`echo $var`
         test -z $val && continue
-        readlink -f $val || die "expected an absolute name for $var:$val";;
+        readlink -f $val || die "expected an absolute name for $var:$val"
     done
 done
 
