@@ -1,37 +1,27 @@
 rm /system/lib/modules/*
-rm /system/app/Browser*.apk
-rm /system/app/Browser.noaccel*.apk
-rm /system/app/CMWallpapers*.apk
-rm /system/app/GoogleMusicICS*.apk
-rm /system/app/HTC_IME_hi22*.apk
-rm /system/app/LatinIME*.apk
-rm /system/app/Vending*.apk
-rm /system/app/RomManager*.apk
-rm /system/app/com.gau.go.launcherex*.apk
-rm /system/app/com.gau.go.launcherex.theme.gowidget.transparency*.apk
-rm /system/app/com.jbapps.contactpro*.apk
-rm /data/app/CallRecorder_v.1.0.27_alpha_build05*.apk
-rm /data/app/Google++2.0.0*.apk
-rm /data/app/Google+Music+4.0.1*.apk
-rm /data/app/Google_Maps_v5.11.0*.apk
-rm /data/app/com.adobe.reader*.apk
-rm /data/app/com.antivirus*.apk
-rm /data/app/com.bumptech.bumpga*.apk
-rm /data/app/com.calcbuddy*.apk
-rm /data/app/com.dropbox.android*.apk
-rm /data/app/com.evernote*.apk
-rm /data/app/com.google.android.apps.reader*.apk
-rm /data/app/com.google.android.apps.translate*.apk
-rm /data/app/com.google.android.apps.unveil*.apk
-rm /data/app/com.google.android.gm*.apk
-rm /data/app/com.google.android.street*.apk
-rm /data/app/com.google.android.youtube*.apk
-rm /data/app/com.google.zxing.client.android*.apk
-rm /data/app/com.jbapps.contactpro*.apk
-rm /data/app/com.keramidas.TitaniumBackup*.apk
-rm /data/app/com.minus.android*.apk
-rm /data/app/com.quoord.tapatalkpro.activity*.apk
-rm /data/app/com.xtralogic.android.logcollector*.apk
-rm /data/app/dev.sci.systune*.apk
-rm /data/app/ext.recovery.control*.apk
-rm /data/app/com.koushikdutta.rommanager*.apk
+rm -f /data/app/CallRecorder_v.1.0.27_alpha_build05*.apk
+rm -f /data/app/Google++2.0.0*.apk
+rm -f /data/app/Google+Music+4.0.1*.apk
+rm -f /data/app/Google_Maps_v5.11.0*.apk
+rm -f /data/app/com.adobe.reader*.apk
+rm -f /data/app/com.android.vending*.apk
+rm -f /data/app/com.antivirus*.apk
+rm -f /data/app/com.bumptech.bumpga*.apk
+rm -f /data/app/com.calcbuddy*.apk
+rm -f /data/app/com.dropbox.android*.apk
+rm -f /data/app/com.evernote*.apk
+rm -f /data/app/com.google.android.apps.reader*.apk
+rm -f /data/app/com.google.android.apps.translate*.apk
+rm -f /data/app/com.google.android.apps.unveil*.apk
+rm -f /data/app/com.google.android.gm*.apk
+rm -f /data/app/com.google.android.street*.apk
+rm -f /data/app/com.google.android.youtube*.apk
+rm -f /data/app/com.google.zxing.client.android*.apk
+rm -f /data/app/com.jbapps.contactpro*.apk
+rm -f /data/app/com.keramidas.TitaniumBackup*.apk
+rm -f /data/app/com.minus.android*.apk
+rm -f /data/app/com.quoord.tapatalkpro.activity*.apk
+rm -f /data/app/com.xtralogic.android.logcollector*.apk
+rm -f /data/app/dev.sci.systune*.apk
+rm -f /data/app/ext.recovery.control*.apk
+rm -f /data/app/com.koushikdutta.rommanager*.apk

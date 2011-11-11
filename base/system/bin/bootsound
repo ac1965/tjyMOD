@@ -73,6 +73,16 @@ case "$1" in
                 ;;
         esac
         ;;
+    --help|-help|-h|help)
+        echo -e "\nusage: $(dirname $0) [--on|--off|--status|--help|NONE] [SOUND-FILE]\n"
+        echo -e "\t--on     : boot sound enable (copy from /sdcard)"
+        echo -e "\t--off    : boot sound disable (save to /sdcard)"
+        echo -e "\t--status : show boot sound toggle"
+        echo -e "\t--help   : this message"
+        echo -e "\tNONE     : boot sound"
+        echo -e "\t           test SOUND-FILE"
+        exit 0
+        ;;
     *)
         if [ "$play" = "1" ]; then
             if  [ x"$1" != x"" ]; then

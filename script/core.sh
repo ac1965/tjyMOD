@@ -302,8 +302,7 @@ zipped_sign () {
 
     echo -ne " updater-script"
     sed -i '/show_progress(0.500000, 0);/a \
-ui_print("* Format /system"); \
-' _u
+ui_print("* Format /system"); \' _u
     sed -i '/mount("ext4", "EMMC", "\/dev\/block\/mmcblk0p25",/a \
 mount("ext4", "EMMC", "/dev/block/mmcblk0p26", "/data"); \
 ui_print("* Extract ROM"); \
@@ -313,7 +312,6 @@ package_extract_dir("data","/data"); \
 package_extract_dir("setup", "/tmp"); \
 set_perm(0, 0, 0755, "/tmp/clean.sh"); \
 run_program("/tmp/clean.sh"); \
-delete("/tmp/clean.sh"); \
 package_extract_dir("sdcard","/sdcard"); \
 ' _u
     sed -i '/set_perm(0, 0, 06755, "\/system\/xbin\/tcpdump");/a \
@@ -343,10 +341,12 @@ unmount("/data"); \
     echo "RIL     : ${ril_version}" >> $OUT_DIR/build_${NAME}.txt
     echo "MARKET  : ${market_version}" >> $OUT_DIR/build_${NAME}.txt
     echo "GPS     : ${gps_locale}" >> $OUT_DIR/build_${NAME}.txt
+
     for f in $CLEAN_LIST
     do
         test -f $f -o -d $f && rm -fr $f
     done
+
     echo -ne " => zipped"
     dexec zip -r9 $ZIPF . >> $LOG 2>&1
     echo -ne " => sign-zipped${NORMAL}"
