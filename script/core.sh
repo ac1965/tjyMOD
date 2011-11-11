@@ -248,7 +248,7 @@ mkbootimg () {
 }
 
 zipped_sign () {
-    local NAME=${PKGNAME}-${dt}
+    local NAME=${PKGNAME}_v${VERSION}-${dt}
     local ZIPF="$(readlink -f $OUT_DIR/../${NAME}.zip)"
     local OUTF="$(readlink -f $OUT_DIR/../${NAME}.signed.zip)"
 
