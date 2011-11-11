@@ -70,7 +70,7 @@ do
             market_version=$optarg;;
         --help|-help|-h) usage;;
         --verbose|-verbose|-v)
-            LOG=/dev/sdtout; verbose=1;;
+            LOG=/dev/stdout; verbose=1;;
         -*) die "recognized option: $optarg";;
     esac
 
