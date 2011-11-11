@@ -1,7 +1,8 @@
 #! /usr/bin/env bash
 
-PKGNAME=tjyMOD
+PKG=tjyMOD
 VERSION=0.7
+PKGNAME=${PKG}_v${VERSION}
 
 # I hope to put site my KANG, kernel and ROM.
 giturl="git://github.com/ac1965/tjyMOD.git"
