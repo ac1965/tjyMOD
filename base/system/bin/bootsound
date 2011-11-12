@@ -33,7 +33,6 @@ local_dir=$(dirname $local_file)
 debug_dir=$(dirname $audio_debug)
 
 test -d $debug_dir || install -d $debug_dir
-touch $audio_debug
 
 play=$(cat /system/build.prop | egrep -c -i -o ro.config.play.bootsound=1)
 
@@ -90,8 +89,10 @@ case "$1" in
                 test -f $audio_file || die "$audio_file not found"
             fi
             stagefright -a -o $audio_file
+            write_debug "on"
         else
             echo "Boot sound disable"
+            write_debug "off"
         fi
         ;;
 esac

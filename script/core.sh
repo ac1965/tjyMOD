@@ -31,12 +31,12 @@ usage () {
 
     cat <<EOF
 Usage:
-   $PKGNAME (-v) all|clean [(--kernel KERNEL_FILE) (--baserom ROM_FILE)]
+   $myname (-v) all|clean [(--kernel KERNEL_FILE) (--baserom ROM_FILE)]
                            [--enable-local-extra FILE]
                            [(--gapps GAPS_FILE)]
                            [(--ril-version VER) (--market-version VER) (--gps-locale LOCALE)]
 
-   $PKGNAME (-v) clean
+   $myname (-v) clean
 
        RILS:   ${rils_ver}
        MARKETS:${markets_ver}
@@ -258,10 +258,10 @@ zipped_sign () {
 
     echo -ne "customize::"
     echo -ne " build.prop"
-    sed -i 's/DD_VERSION/'${PKGNAME}-v${VERSION}_${dt}'/' system/build.prop
+    sed -i 's/DD_VERSION/'${PKGNAME}_${dt}'/' system/build.prop
 
     cat $ART_DIR/logo.txt META-INF/com/google/android/updater-script > _u
-    sed -i 's/DD_VERSION/'${PKGNAME}-v${VERSION}_${dt}'/' _u
+    sed -i 's/DD_VERSION/'${PKGNAME}_${dt}'/' _u
     sed -i 's/DD_BASEROM/'$(echo $(basename ${baserom_file}) | sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
     sed -i 's/DD_KERNEL/'$(echo $(basename ${kernel_file}) | sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
     sed -i 's/DD_GAPPS/'$(echo $(basename ${gapps_file}) | sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
