@@ -5,7 +5,7 @@ export LANG=C
 
 workdir="$(readlink -f $(dirname $0))"
 dt=$(date +%Y%m%d)
-myname=$(dirname $0)
+myname=$(basename $0)
 
 . $workdir/setting.sh || exit 1
 . $workdir/core.sh || exit 1
