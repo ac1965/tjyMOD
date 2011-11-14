@@ -8,9 +8,9 @@ all:
 	@script/meta.sh all \
 		--ril-version $(RIL) \
 		--gps-locale $(LOCALE) \
-		--market-version $(MARKET) \
-		--baserom $(BASEROM) \
-		--kernel $(KERNEL)
+		--market-version $(MARKET)
+#		--baserom $(BASEROM) \
+#		--kernel $(KERNEL)
 
 clean:
 	@script/meta.sh clean
