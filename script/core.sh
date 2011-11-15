@@ -24,10 +24,18 @@ dexec () {
 }
 
 usage () {
-    local rils=$(ls ${RIL_DIR} | sed 's/HTC-RIL_//g')
-    local rils_ver=$(for ver in $rils; do printf " %-9s" $ver; done)
-    local markets=$(ls ${MARKET_DIR} | sed 's/Vending-//g' | sed 's/\.apk//g')
-    local markets_ver=$(for ver in $markets; do printf " %-9s" $ver; done)
+    if [ -d ${RIL_DIR} ]; then
+	local rils=$(ls ${RIL_DIR} | sed 's/HTC-RIL_//g')
+    	local rils_ver=$(for ver in $rils; do printf " %-9s" $ver; done)
+    else
+    	local rils_ver="NONE"
+    fi
+    if [ -d ${MARKET_DIR} ]; then
+    	local markets=$(ls ${MARKET_DIR} | sed 's/Vending-//g' | sed 's/\.apk//g')
+    	local markets_ver=$(for ver in $markets; do printf " %-9s" $ver; done)
+    else
+    	local markets_ver="NONE"
+    fi
 
     cat <<EOF
 Usage:
