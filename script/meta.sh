@@ -52,10 +52,9 @@ do
             prev=gapps_file;;
         --gapps=*|-gapps=*|-g-*)
             gapps_file=$optarg;;
-        --enable-local-etra-file|-enable-local-extra-file|-e)
-            local_extra=1
+        --enable-local-extra-file|-enable-local-extra-file|-e)
             prev=local_extra_file;;
-        --enable-local-etra-file=*|-enable-local-extra-file=*|-e=*)
+        --enable-local-extra-file=*|-enable-local-extra-file=*|-e=*)
             local_extra_file=$optarg;;
         --gps-locale|-gps-locale|-l)
             prev=gps_locale;;
@@ -87,6 +86,11 @@ test $verbose = 0 && LOG=$logf
 test -z $kernel_file && kernel_file=$default_kernel
 test -z $baserom_file && baserom_file=$default_baserom
 test -z $gapps_file && gapps_file=$default_gapps
+if [ -f $local_extra_file ]; then
+	local_extra=1
+	source $local_extra_file
+	einfo "Using: $local_extra_file"
+fi
 test -d $O || install -d $O
 test -d $DOWN_DIR || install -d $DOWN_DIR
 test -f $logf && mv $logf $logf.prev

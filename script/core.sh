@@ -40,7 +40,7 @@ usage () {
     cat <<EOF
 Usage:
    $myname (-v) all|clean [(--kernel KERNEL_FILE) (--baserom ROM_FILE)]
-                           [--enable-local-extra FILE]
+                           [--enable-local-extra-file FILE]
                            [(--gapps GAPS_FILE)]
                            [(--ril-version VER) (--market-version VER) (--gps-locale LOCALE)]
 

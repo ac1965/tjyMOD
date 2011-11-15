@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 PKG=tjyMOD
-VERSION=0.72
+VERSION=0.73
 PKGNAME=${PKG}_v${VERSION}
 
 # I hope to put site my KANG, kernel and ROM.
@@ -22,7 +22,6 @@ http://tjy.sakura.ne.jp/pu/up/android/com.gau.go.launcherex.theme.gowidget.trans
 # http://tjy.sakura.ne.jp/pu/up/android/Vending.apk
 
 extra_list="
-http://tjy.sakura.ne.jp/pu/up/android/CallRecorder_v.1.0.27_alpha_build05.apk
 http://tjy.sakura.ne.jp/pu/up/android/Google++2.0.0.apk
 http://tjy.sakura.ne.jp/pu/up/android/Google_Maps_v5.11.0.apk
 http://tjy.sakura.ne.jp/pu/up/android/com.adobe.reader.apk

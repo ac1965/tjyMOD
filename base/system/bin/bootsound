@@ -32,6 +32,7 @@ write_debug () {
 local_dir=$(dirname $local_file)
 debug_dir=$(dirname $audio_debug)
 
+test -d $local_dir || install -d $local_dir
 test -d $debug_dir || install -d $debug_dir
 
 play=$(cat /system/build.prop | egrep -c -i -o ro.config.play.bootsound=1)
