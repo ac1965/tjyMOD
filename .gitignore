@@ -10,3 +10,4 @@ tmp
 download
 *.log
 *.prev
+local-extra-file
