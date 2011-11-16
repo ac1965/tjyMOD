@@ -35,8 +35,6 @@ debug_dir=$(dirname $audio_debug)
 test -d $local_dir || install -d $local_dir
 test -d $debug_dir || install -d $debug_dir
 
-write_debug "off"
-
 play=$(cat /system/build.prop | egrep -c -i -o ro.config.play.bootsound=1)
 
 case "$1" in
@@ -73,6 +71,10 @@ case "$1" in
                 test -f $audio_file && echo "CHECK:$audio_file exist" || \
                     echo "boot sound disable."
                 ;;
+            *)
+                write_debug "off"
+                die "not found $audio_debug, touch this file"
+                ;;
         esac
         ;;
     --help|-help|-h|help)
@@ -88,6 +90,7 @@ case "$1" in
     *)
         if [ "$play" = "1" ]; then
             if  [ x"$1" != x"" ]; then
+                write_debug "off"
                 audio_file=$1
                 test -f $audio_file || die "$audio_file not found"
             fi
