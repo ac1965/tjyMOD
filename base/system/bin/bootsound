@@ -3,7 +3,6 @@
 audio_file=/system/media/android_audio.mp3
 audio_debug=/data/local/audio.debug
 local_file=/data/local/boot/android_audio.mp3
-stock_file=/sdcard/tjyMOD/android_audio.mp3
 
 die () {
     echo "$1"
@@ -42,7 +41,7 @@ case "$1" in
     --on|-on|on)
         if [ -e $local_file ]; then
             system_remount "rw"
-            cp $local_file $audio_file 2>/dev/null || cp $stock_file $audio_file
+            cp $local_file $audio_file
             system_remount "ro" "boot sound enabled.."
             write_debug "on"
         else
