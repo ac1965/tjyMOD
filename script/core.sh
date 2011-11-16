@@ -40,7 +40,7 @@ usage () {
     cat <<EOF
 Usage:
    $myname (-v) all|clean [(--kernel KERNEL_FILE) (--baserom ROM_FILE)]
-                           [--enable-local-extra-file FILE]
+                           [--enable-local-extra-file FILE | --disable-extra]
                            [(--gapps GAPS_FILE)]
                            [(--ril-version VER) (--market-version VER) (--gps-locale LOCALE)]
 
@@ -233,6 +233,7 @@ mix_extra () {
     	source $local_extra_file
     fi
 
+    test $disable_extra = 1 && return
     for t in $extra_list
     do
         download_apps $t "/data/app"

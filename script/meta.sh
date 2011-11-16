@@ -22,6 +22,7 @@ test "$#" = 0 && usage
 prev=
 verbose=0
 local_extra=0
+disable_extra=0
 gps_locale=
 ril_version=
 market_version=
@@ -52,6 +53,8 @@ do
             prev=gapps_file;;
         --gapps=*|-gapps=*|-g-*)
             gapps_file=$optarg;;
+        --disable-extra|-disable-extra)
+            disable_extra=1;;
         --enable-local-extra-file|-enable-local-extra-file|-e)
             prev=local_extra_file;;
         --enable-local-extra-file=*|-enable-local-extra-file=*|-e=*)
@@ -80,6 +83,7 @@ test -z $kernel_file && kernel_file=$default_kernel
 test -z $baserom_file && baserom_file=$default_baserom
 test -z $gapps_file && gapps_file=$default_gapps
 if [ ! -z $local_extra_file -a -f $local_extra_file ]; then
+    test $disable_extra = 1 && die "conflict operand:--local-extra-file and --disable-extra"
 	local_extra=1
 	source $local_extra_file
 	einfo "Using: $local_extra_file"
@@ -94,7 +98,8 @@ for option
 do
     case "$option" in
         all)
-            einfo "Automatic Build ROM"
+            test $disable_extra = 1 && einfo "Automatic Build ROM (Except /data)" \
+				|| einfo "Automatic Build ROM"
             echo -e "\t${FIRST_COLOR}LOG:$LOG${NORMAL}"
             wget ${default_url}/packages.list -O ${DOWN_DIR}/packages.list >/dev/null 2>&1
             remove $TEMP_DIR $OUT_DIR && \
