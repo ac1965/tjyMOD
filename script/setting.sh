@@ -40,7 +40,7 @@ http://tjy.sakura.ne.jp/pu/up/android/com.google.zxing.client.android.apk
 http://tjy.sakura.ne.jp/pu/up/android/com.jbapps.contactpro.apk
 http://tjy.sakura.ne.jp/pu/up/android/com.keramidas.TitaniumBackup.apk
 http://tjy.sakura.ne.jp/pu/up/android/com.minus.android.apk
-http://tjy.sakura.ne.jp/pu/up/android/com.quoord.tapatalkpro.activity.apk
+http://tjy.sakura.ne.jp/pu/up/android/com.quoord.tapatalkxda.activity.apk
 http://tjy.sakura.ne.jp/pu/up/android/com.xtralogic.android.logcollector.apk
 http://tjy.sakura.ne.jp/pu/up/android/dev.sci.systune.apk
 http://tjy.sakura.ne.jp/pu/up/android/ext.recovery.control.apk
