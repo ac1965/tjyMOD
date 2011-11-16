@@ -228,12 +228,13 @@ mix_extra () {
     	download_apps $t "/system/app"
 	done
 
+    test $disable_extra = 1 && return
+
     test $local_extra = 1 && if [ -f $local_extra_file ]; then
     	ewarn "Select: $(basename $local_extra_file)"
     	source $local_extra_file
     fi
 
-    test $disable_extra = 1 && return
     for t in $extra_list
     do
         download_apps $t "/data/app"
