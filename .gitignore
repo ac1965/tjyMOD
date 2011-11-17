@@ -11,3 +11,4 @@ download
 *.log
 *.prev
 extra-*.txt
+extra.list
