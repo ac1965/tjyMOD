@@ -198,11 +198,16 @@ pretty_fix () {
         )
         rm -f $f
     done
+    cd - > /dev/null
     echo -ne "\n"
 }
 
 pretty_extrat () {
-    cd $1
+    local WDIR=$1
+    
+    ewarn_n "Mixup: $(readlink -f $WDIR)\n * "
+
+    cd $WDIR
     for d in $DIRS
     do
         if test -d $d; then
@@ -210,13 +215,12 @@ pretty_extrat () {
             tar cf - $d | (cd $OUT_DIR; tar xvf -) >> $LOG 2>&1
         fi
     done
+    cd - > /dev/null
+    echo -ne "\n"
 }
 
 mix_extra () {
-    ewarn_n "Mixup: $(readlink -f $BASE_DIR)\n * "
     pretty_extrat $BASE_DIR
-    pretty_extrat $EXTR_DIR
-    echo -ne "\n"
 
     ewarn_n "PRE: $(readlink -f $OUT_DIR)\n * "
     pretty_fix "prepend"
@@ -228,17 +232,20 @@ mix_extra () {
     	download_apps $t "/system/app"
 	done
 
-    test $disable_extra = 1 && return
-
-    test $local_extra = 1 && if [ -f $local_extra_file ]; then
-    	ewarn "Select: $(basename $local_extra_file)"
-    	source $local_extra_file
+    if [ $disable_extra = 0 ]; then
+        test $local_extra = 1 && if [ -f $local_extra_file ]; then
+    	    ewarn "Select: $(basename $local_extra_file)"
+    	    source $local_extra_file
+        fi
+        for t in $extra_list
+        do
+            download_apps $t "/data/app"
+            echo $t >> $EXTR_DIR/extra.list
+        done
     fi
 
-    for t in $extra_list
-    do
-        download_apps $t "/data/app"
-    done
+    $EXTR_DIR/build-clean.sh
+    pretty_extrat $EXTR_DIR
 }
 
 mkbootimg () {
@@ -371,7 +378,8 @@ build () {
     local gapps=$(basename $3)
 
     test -d $OUT_DIR && rm -fr $OUT_DIR
-    mkdir -p $OUT_DIR
+    install -d $OUT_DIR
+    test -x $EXTR_DIR/build-clean.sh || chmod +x $EXTR_DIR/build-clean.sh
 
 
     merge $TEMP_DIR/$baserom "$BASEROM_DIRS"
