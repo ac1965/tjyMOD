@@ -56,8 +56,10 @@ CLEAN_LIST="kernel \
             system/app/Provision.apk \
             system/app/ADWLauncher.apk \
             system/app/MarketUpgrader.apk \
+            system/app/MarketUpdater.apk \
             system/app/RomManager.apk \
-            system/app/Protips.apk"
+            system/app/Protips.apk \
+"
 
 O="$workdir/../out"
 DOWN_DIR="$workdir/../download"
