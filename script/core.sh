@@ -77,18 +77,18 @@ pretty_download () {
 
     cd $DOWN_DIR
     if [ -f ${DOWN_DIR}/${target}.sum ]; then
-        md5sum --status --check ${DOWN_DIR}/${target}.sum
+        md5sum --status --check ${target}.sum
         case "$?" in
             0)
                 echo -ne ": ${FIRST_COLOR}Exist${NORMAL} \n";;
             *)
                 download $url
-                md5sum $target > ${DOWN_DIR}/${target}.sum
+                md5sum $target > ${target}.sum
                 echo -ne "\n";;
         esac
     else
         download $url
-        md5sum $target > ${DOWN_DIR}/${target}.sum
+        md5sum $target > ${target}.sum
         echo -ne  "\n"
     fi
     cd - > /dev/null
@@ -175,7 +175,7 @@ remove () {
     for t in "$@"
     do
         ewarn "Remove:$(readlink -f ${t})"
-		rm -fr $t
+	rm -fr $t
     done
 }
 
@@ -257,7 +257,8 @@ mkbootimg () {
     test -d $T || install -d $T
     dexec dd if=$OLDIMG of=$TEMP_DIR/boot.img
     dexec $TOOLS_DIR/unpackbootimg -i $TEMP_DIR/boot.img -o $T
-    dexec $TOOLS_DIR/mkbootimg --kernel $ZIMAGE --ramdisk $T/boot.img-ramdisk.gz \
+    dexec $TOOLS_DIR/mkbootimg --kernel $ZIMAGE \
+	--ramdisk $T/boot.img-ramdisk.gz \
         --cmdline $(cat $T/boot.img-cmdline) \
         --base $(cat $T/boot.img-base) \
         --output $BOOT
@@ -269,9 +270,10 @@ zipped_sign () {
     local ZIPF="$(readlink -f $OUT_DIR/../${NAME}.zip)"
     local OUTF="$(readlink -f $OUT_DIR/../${NAME}.signed.zip)"
 
+    test -f $ZIPF && rm -f $ZIPF
+
     ewarn_n "BUILD ROM: $(basename $OUTF)\n * "
     cd $OUT_DIR
-    test -f $ZIPF && rm -f $ZIPF
 
     echo -ne "customize::"
     echo -ne " build.prop"
@@ -279,9 +281,12 @@ zipped_sign () {
 
     cat $ART_DIR/logo.txt META-INF/com/google/android/updater-script > _u
     sed -i 's/DD_VERSION/'${PKGNAME}_${dt}'/' _u
-    sed -i 's/DD_BASEROM/'$(echo $(basename ${baserom_file}) | sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
-    sed -i 's/DD_KERNEL/'$(echo $(basename ${kernel_file}) | sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
-    sed -i 's/DD_GAPPS/'$(echo $(basename ${gapps_file}) | sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
+    sed -i 's/DD_BASEROM/'$(echo $(basename ${baserom_file}) | \
+	sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
+    sed -i 's/DD_KERNEL/'$(echo $(basename ${kernel_file}) | \
+	sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
+    sed -i 's/DD_GAPPS/'$(echo $(basename ${gapps_file}) | \
+	sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
 
     # RIL selected    
     if [ -d ${RIL_DIR}/HTC-RIL_${ril_version} ]; then
@@ -290,12 +295,12 @@ zipped_sign () {
         for f in rild
         do
             test -f ${RIL_DIR}/HTC-RIL_${ril_version}/${f} && \
-                dexec cp ${RIL_DIR}/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/bin/${f}
+                dexec cp ${RIL_DIR}/HTC-RIL_${ril_version}/${f} bin/${f}
         done
         for f in libhtc_ril.so libril.so
         do
             test -f ${RIL_DIR}/HTC-RIL_${ril_version}/${f} && \
-                dexec cp ${RIL_DIR}/HTC-RIL_${ril_version}/${f} ${OUT_DIR}/system/lib/${f}
+                dexec cp ${RIL_DIR}/HTC-RIL_${ril_version}/${f} system/lib/${f}
         done
     fi
 
@@ -303,7 +308,8 @@ zipped_sign () {
     if [ -f ${MARKET_DIR}/Vending-${market_version}.apk ]; then
         echo -ne " MARKET[${REMARK_COLOR}$market_version${NORMAL}]"
         sed -i 's/MARKET: DEFAULT/MARKET: '$market_version'/' _u
-        dexec cp ${MARKET_DIR}/Vending-${market_version}.apk ${OUT_DIR}/system/app/Vending.apk
+        dexec cp ${MARKET_DIR}/Vending-${market_version}.apk \
+		system/app/Vending.apk
     fi
 
     # Locale selected: /system/etc/gps.conf copy each countries
@@ -311,7 +317,7 @@ zipped_sign () {
         if [ -d $GPS_DIR/${gps_locale} ]; then
             echo -ne " Locale[${REMARK_COLOR}$gps_locale${NORMAL}]"
             sed -i 's/GPS   : DEFAULT/GPS   : '$gps_locale'/' _u
-            dexec cp $GPS_DIR/${gps_locale}/gps.conf $OUT_DIR/system/etc
+            dexec cp $GPS_DIR/${gps_locale}/gps.conf system/etc/
         fi
     )
 	test -d ${SDCARD_DIR} && \
@@ -367,8 +373,10 @@ unmount("/data"); \
     echo -ne " => zipped"
     dexec zip -r9 $ZIPF . >> $LOG 2>&1
     echo -ne " => sign-zipped${NORMAL}"
-    dexec java -jar $TOOLS_DIR/signapk.jar $TOOLS_DIR/certification.pem $TOOLS_DIR/key.pk8 \
-        $ZIPF $OUTF && rm -f $ZIPF
+    dexec java -jar $TOOLS_DIR/signapk.jar \
+	$TOOLS_DIR/certification.pem \
+	$TOOLS_DIR/key.pk8 $ZIPF $OUTF && \
+	rm -f $ZIPF
     echo -ne "\n"
 }
 
@@ -385,7 +393,9 @@ build () {
     merge $TEMP_DIR/$baserom "$BASEROM_DIRS"
     test -d $OUT_DIR/system/lib/modules && rm -fr $OUT_DIR/system/lib/modules
     merge $TEMP_DIR/$kernel "$KERNEL_DIRS"
-    mkbootimg $TEMP_DIR/$baserom/boot.img $TEMP_DIR/$kernel/kernel/zImage $OUT_DIR/boot.img
+    mkbootimg $TEMP_DIR/$baserom/boot.img \
+	$TEMP_DIR/$kernel/kernel/zImage \
+	$OUT_DIR/boot.img
     merge $TEMP_DIR/$gapps "$GAPPS_DIRS"
     remove $TEMP_DIR/$baserom $TEMP_DIR/$kernel $TEMP_DIR/$gapps
     mix_extra
