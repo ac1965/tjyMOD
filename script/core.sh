@@ -25,7 +25,7 @@ dexec () {
 
 usage () {
     if [ -d ${RIL_DIR} ]; then
-	local rils=$(ls ${RIL_DIR} | sed 's/HTC-RIL_//g')
+	    local rils=$(ls ${RIL_DIR} | sed 's/HTC-RIL_//g')
     	local rils_ver=$(for ver in $rils; do printf " %-9s" $ver; done)
     else
     	local rils_ver="NONE"
@@ -175,7 +175,7 @@ remove () {
     for t in "$@"
     do
         ewarn "Remove:$(readlink -f ${t})"
-	rm -fr $t
+	    rm -fr $t
     done
 }
 
@@ -258,7 +258,7 @@ mkbootimg () {
     dexec dd if=$OLDIMG of=$TEMP_DIR/boot.img
     dexec $TOOLS_DIR/unpackbootimg -i $TEMP_DIR/boot.img -o $T
     dexec $TOOLS_DIR/mkbootimg --kernel $ZIMAGE \
-	--ramdisk $T/boot.img-ramdisk.gz \
+	    --ramdisk $T/boot.img-ramdisk.gz \
         --cmdline $(cat $T/boot.img-cmdline) \
         --base $(cat $T/boot.img-base) \
         --output $BOOT
@@ -282,11 +282,11 @@ zipped_sign () {
     cat $ART_DIR/logo.txt META-INF/com/google/android/updater-script > _u
     sed -i 's/DD_VERSION/'${PKGNAME}_${dt}'/' _u
     sed -i 's/DD_BASEROM/'$(echo $(basename ${baserom_file}) | \
-	sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
+	    sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
     sed -i 's/DD_KERNEL/'$(echo $(basename ${kernel_file}) | \
-	sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
+	    sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
     sed -i 's/DD_GAPPS/'$(echo $(basename ${gapps_file}) | \
-	sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
+	    sed 's/.signed.zip//' | sed 's/.zip//')'/' _u
 
     # RIL selected    
     if [ -d ${RIL_DIR}/HTC-RIL_${ril_version} ]; then
@@ -309,7 +309,7 @@ zipped_sign () {
         echo -ne " MARKET[${REMARK_COLOR}$market_version${NORMAL}]"
         sed -i 's/MARKET: DEFAULT/MARKET: '$market_version'/' _u
         dexec cp ${MARKET_DIR}/Vending-${market_version}.apk \
-		system/app/Vending.apk
+		    system/app/Vending.apk
     fi
 
     # Locale selected: /system/etc/gps.conf copy each countries
@@ -374,9 +374,9 @@ unmount("/data"); \
     dexec zip -r9 $ZIPF . >> $LOG 2>&1
     echo -ne " => sign-zipped${NORMAL}"
     dexec java -jar $TOOLS_DIR/signapk.jar \
-	$TOOLS_DIR/certification.pem \
-	$TOOLS_DIR/key.pk8 $ZIPF $OUTF && \
-	rm -f $ZIPF
+	    $TOOLS_DIR/certification.pem \
+	    $TOOLS_DIR/key.pk8 $ZIPF $OUTF && \
+	    rm -f $ZIPF
     echo -ne "\n"
 }
 
@@ -394,8 +394,8 @@ build () {
     test -d $OUT_DIR/system/lib/modules && rm -fr $OUT_DIR/system/lib/modules
     merge $TEMP_DIR/$kernel "$KERNEL_DIRS"
     mkbootimg $TEMP_DIR/$baserom/boot.img \
-	$TEMP_DIR/$kernel/kernel/zImage \
-	$OUT_DIR/boot.img
+	    $TEMP_DIR/$kernel/kernel/zImage \
+	    $OUT_DIR/boot.img
     merge $TEMP_DIR/$gapps "$GAPPS_DIRS"
     remove $TEMP_DIR/$baserom $TEMP_DIR/$kernel $TEMP_DIR/$gapps
     mix_extra

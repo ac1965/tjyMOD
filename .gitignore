@@ -12,3 +12,4 @@ download
 *.prev
 extra-*.txt
 extra.list
+clean.sh
