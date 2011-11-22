@@ -332,9 +332,10 @@ ui_print("* Extract ROM"); \
 ' _u
     sed -i '/package_extract_dir("system",/a \
 package_extract_dir("data","/data"); \
-package_extract_dir("setup", "/tmp"); \
-set_perm(0, 0, 0755, "/tmp/clean.sh"); \
-run_program("/tmp/clean.sh"); \
+package_extract_dir("setup", "/data/local/tmp"); \
+set_perm(0, 0, 0755, "/data/local/tmp/clean.sh"); \
+run_program("/data/local/tmp/clean.sh"); \
+delete("/data/local/tmp/clean.sh"); \
 package_extract_dir("sdcard","/sdcard"); \
 ' _u
     sed -i '/set_perm(0, 0, 06755, "\/system\/xbin\/tcpdump");/a \
@@ -364,6 +365,12 @@ unmount("/data"); \
     echo "RIL     : ${ril_version}" >> $OUT_DIR/build_${NAME}.txt
     echo "MARKET  : ${market_version}" >> $OUT_DIR/build_${NAME}.txt
     echo "GPS     : ${gps_locale}" >> $OUT_DIR/build_${NAME}.txt
+    test $disable_extra = 1 && echo "EXTRA   : DISABLE" >> $OUT_DIR/build_${NAME}.txt
+    test $local_extra = 1 && (
+        echo "------" >> $OUT_DIR/build_${NAME}.txt
+        echo "EXTRA   : LOCAL $local_extra_file" >> $OUT_DIR/build_${NAME}.txt
+        echo "$extra_list" >> $OUT_DIR/build_${NAME}.txt
+    )
 
     for f in $CLEAN_LIST
     do

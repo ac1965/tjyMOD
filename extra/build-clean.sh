@@ -3,7 +3,7 @@
 wdir=$(readlink -f $(dirname $0))
 out='/sdcard/clean.log'
 
-echo '#! /system/bin/sh' > ${wdir}/setup/clean.sh
+echo '#!/sbin/sh' > ${wdir}/setup/clean.sh
 echo 'rm /system/lib/modules/*' >> ${wdir}/setup/clean.sh
 echo "test -f $out && rm $out" >> ${wdir}/setup/clean.sh
 
@@ -16,8 +16,7 @@ do
 for x in $cmd
 do
    test -f ${doll}x && (
-      echo "remove : ${doll}x"
-      rm -f ${doll}x
+      rm -f ${doll}x && echo "remove: ${doll}x" || echo "not remove: ${doll}x"
    ) 
 done >> $out
 EOF
