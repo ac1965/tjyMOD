@@ -23,6 +23,7 @@ prev=
 verbose=0
 local_extra=0
 disable_extra=0
+extra_only=0
 gps_locale=
 ril_version=
 market_version=
