@@ -267,8 +267,11 @@ mkbootimg () {
 
 zipped_sign () {
     local NAME=${PKGNAME}-${dt}
+    test $disable_extra = 1 && NAME=${PKGNAME}-"no_extraapps"-${dt}
     local ZIPF="$(readlink -f $OUT_DIR/../${NAME}.zip)"
     local OUTF="$(readlink -f $OUT_DIR/../${NAME}.signed.zip)"
+
+    local NAME=${PKGNAME}-${dt}
 
     test -f $ZIPF && rm -f $ZIPF
 
