@@ -8,7 +8,7 @@ PKGNAME=${PKG}_v${VERSION}
 giturl="git://github.com/ac1965/tjyMOD.git"
 default_url="http://tjy.sakura.ne.jp/pu/up/android"
 # LorDmodUE-8.3-CFS-b1-aufs
-default_kernel="update_2.6.35-BFS-WIP-AUFS_201111211050.zip"
+default_kernel="update_2.6.35-BFS-WIP-AUFS_201111241303.zip"
 default_baserom="update-cm-7.1.0-DesireHD-KANG_201111201027.signed.zip"
 default_gapps="gapps-gb-20110930-237-signed.zip"
 
