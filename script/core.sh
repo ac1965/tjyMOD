@@ -402,7 +402,7 @@ build () {
     test -x $EXTR_DIR/build-clean.sh || chmod +x $EXTR_DIR/build-clean.sh
 
 
-    if [ $extra_only = 1 ]; then
+    if [ $extra_only = 0 ]; then
 	merge $TEMP_DIR/$baserom "$BASEROM_DIRS"
     	test -d $OUT_DIR/system/lib/modules && rm -fr $OUT_DIR/system/lib/modules
     	merge $TEMP_DIR/$kernel "$KERNEL_DIRS"
