@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+# FIXME: extra_only
+
 set -e
 export LANG=C
 
