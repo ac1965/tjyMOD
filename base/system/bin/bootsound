@@ -89,13 +89,10 @@ case "$1" in
         ;;
     *)
         if [ "$play" = "1" ]; then
-            if  [ x"$1" != x"" ]; then
-                write_debug "off"
-                audio_file=$1
-                test -f $audio_file || die "$audio_file not found"
-            fi
+            test x"$1" != X"" && audio_file=$1
+            test -f $audio_file || die "$audio_file not found"
             stagefright -a -o $audio_file
-            write_debug "on"
+            test -f /system/media/android_audio.mp3 && write_debug "on"
         else
             echo "Boot sound disable"
             write_debug "off"
