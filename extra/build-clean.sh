@@ -7,6 +7,8 @@ echo '#!/sbin/sh' > ${wdir}/setup/clean.sh
 echo 'rm /system/lib/modules/*' >> ${wdir}/setup/clean.sh
 echo "test -f $out && rm $out" >> ${wdir}/setup/clean.sh
 
+test -f ${wdir}/extra.list || exit 0
+
 for f in $(cat ${wdir}/extra.list)
 do
 	name=$(basename $f .apk)
