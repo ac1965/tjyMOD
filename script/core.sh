@@ -402,14 +402,16 @@ build () {
     test -x $EXTR_DIR/build-clean.sh || chmod +x $EXTR_DIR/build-clean.sh
 
 
-    merge $TEMP_DIR/$baserom "$BASEROM_DIRS"
-    test -d $OUT_DIR/system/lib/modules && rm -fr $OUT_DIR/system/lib/modules
-    merge $TEMP_DIR/$kernel "$KERNEL_DIRS"
-    mkbootimg $TEMP_DIR/$baserom/boot.img \
-	    $TEMP_DIR/$kernel/kernel/zImage \
-	    $OUT_DIR/boot.img
-    merge $TEMP_DIR/$gapps "$GAPPS_DIRS"
-    remove $TEMP_DIR/$baserom $TEMP_DIR/$kernel $TEMP_DIR/$gapps
+    if [ $extra_only = 1 ]; then
+	merge $TEMP_DIR/$baserom "$BASEROM_DIRS"
+    	test -d $OUT_DIR/system/lib/modules && rm -fr $OUT_DIR/system/lib/modules
+    	merge $TEMP_DIR/$kernel "$KERNEL_DIRS"
+    	mkbootimg $TEMP_DIR/$baserom/boot.img \
+		$TEMP_DIR/$kernel/kernel/zImage \
+		$OUT_DIR/boot.img
+    	merge $TEMP_DIR/$gapps "$GAPPS_DIRS"
+    	remove $TEMP_DIR/$baserom $TEMP_DIR/$kernel $TEMP_DIR/$gapps
+    fi
     mix_extra
 
     zipped_sign
