@@ -1,5 +1,7 @@
-BASEROM = http://tjy.sakura.ne.jp/pu/up/android/update-cm-7.1.0-DesireHD-KANG_201111201027.signed.zip
-KERNEL = http://tjy.sakura.ne.jp/pu/up/android/update_ICS-AUFS_201112020947.zip
+#BASEROM = http://tjy.sakura.ne.jp/pu/up/android/update-cm-7.1.0-DesireHD-KANG_201111201027.signed.zip
+#KERNEL = http://tjy.sakura.ne.jp/pu/up/android/update_ICS-AUFS_201112020947.zip
+BASEROM = update-cm-7.1.0-DesireHD-KANG_201111201027.signed.zip
+KERNEL = update_ICS-AUFS_201112020947.zip
 RIL = 2.2.1003G
 LOCALE = JAPAN
 MARKET = 2.3.6
