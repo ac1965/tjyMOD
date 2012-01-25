@@ -1,14 +1,15 @@
 #! /usr/bin/env bash
 
 PKG=tjyMOD
-VERSION=0.8
+VERSION=0.81
 PKGNAME=${PKG}_v${VERSION}
 
 # I hope to put site my KANG, kernel and ROM.
 giturl="git://github.com/ac1965/tjyMOD.git"
 default_url="http://tjy.sakura.ne.jp/pu/up/android"
 # LorDmodUE-8.3-CFS-b1-aufs
-default_kernel="update_ICS-AUFS_201112020947.zip"
+# update_ICS-AUFS_201112020947.zip
+default_kernel="update_ICS-AUFS_201112071645.zip"
 default_baserom="update-cm-7.1.0-DesireHD-KANG_201111201027.signed.zip"
 default_gapps="gapps-gb-20110930-237-signed.zip"
 
